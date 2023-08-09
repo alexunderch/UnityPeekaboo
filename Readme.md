@@ -4,6 +4,16 @@ A Unity-based environment to benchmark multi-agent pathfinding and cooperative b
 ![image info](./media/overview.png)
 
 
+# Road map
+* [ ] Wassup latex?
+* [ ] Convert the project to C# SDK
+* [ ] Assets for the environment
+* [ ] Bugs in the envritonment: spawns, movement glitches etc.  
+* [ ] Development documentation
+* [ ] Instantianting scenes from `json`
+* [ ] Add more envrionment configurations 
+* [ ] Add baselines
+
 ## Installation
 
 ### Inference 
