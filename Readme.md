@@ -195,7 +195,7 @@ Each agent aims to find a behavioural policy $\pi^i(a^i\_t|h^i\_t) \in \Pi^i: \m
 ```math
   \pi \in  \arg \max_{\pi}  \mathbb{E}_{s_{t+1} \sim P(\cdot|s_t, \mathbf{a}_t), \ \mathbf{o}_t \sim \mathbf{O}(\mathbf{o}_t | s_{t+1}, \mathbf{a}_t), \ a^{-i}_t \in \pi^{-i}(\cdot|h^{-i}_t) } \left[ \sum_{t\geq 0} \gamma^t r^i_{t+1}| s_0 \sim \rho, a^i_t \sim \pi^i(\cdot|h^i_t)  \right]
 ```
-where $\gamma \in [0, 1)$ -- a discount factor. 
+where $\gamma \in [0, 1)$ – a discount factor. 
 
 ## Environment configuration 
 
@@ -229,7 +229,7 @@ Goals are need to be triggered to be completed. A completed goal changes its col
 
 Goal are represented using the following structures
 ```yaml
-Goal: GoalBehaviour
+Goal: GoalElement
 StartingPosition: Vector3
 StartingRotation: Quaternion
 Type: Sphere/Cube/Whatever
