@@ -5,7 +5,7 @@ A Unity-based environment to benchmark multi-agent pathfinding and cooperative b
 
 
 # Road map
-* [ ] Wassup latex?
+* [x] Wassup latex?
 * [x] Convert the project to C# SDK
 * [ ] Assets for the environment
 * [ ] Bugs in the envritonment: spawns, movement glitches etc.  
@@ -178,21 +178,23 @@ Note that only cooperative behaviour is currently supported, competitve setting 
 Note that resets are done deteministically according to inner (not inference) environment seed!
 
 ### Substrate
- Partially observable stochastic game $G = \langle \mathcal{I}, \mathcal{S}, \{\mathcal{A}\}_{i=1}^N, P,  \rho, \{R^i\}_{i=1}^N, \{\mathcal{O}^i\}_{i=1}^N, \{O^i\}_{i=1}^N, \gamma \rangle$:
+ Partially observable stochastic game $G = \langle \mathcal{I}, \mathcal{S}, \{\mathcal{A}\}\_{i=1}^N, P,  \rho, \{R^i\}\_{i=1}^N, \{\mathcal{O}^i\}\_{i=1}^N, \{O^i\}\_{i=1}^N, \gamma \rangle$:
 
-* $\mathcal{I} = \{1, \ldots, N\}$ -- a finite set of agents;
-* $\mathcal{S}$ -- a finite set of states;
-* $\mathbf{A} = \prod_i \mathcal{A}^i = \mathcal{A}_1 \times \mathcal{A}_2 \times \ldots \times \mathcal{A}_N$ -- a joint state of actions, where $\mathcal{A}^i$ is an action space for the $i^{\text{th}}$ agent; 
-* $\rho = \Delta(\mathcal{S})$ -- initial state distribution.
-*  $\mathbf{O} = \prod_i \mathcal{O}^i =\mathcal{O}_1 \times \mathcal{O}_2 \times \ldots \times \mathcal{O}_N$ -- a joint observation space where $\mathcal{O}^i$ is the observation space for the $i^{\text{th}}$ agent.
-* $O^i: \mathcal{S} \times \mathbf{A} \times \mathcal{O}^i \rightarrow \Delta(\mathcal{O}^i)$ -- an observation function of the $i^{\text{th}}$ agent, $\mathbf{O}: \mathcal{S} \times \mathbf{A} \times \mathbf{O} \rightarrow \Delta(\mathbf{O})$ -- an observation function for the joint observation.
+* $\mathcal{I} = \{1, \ldots, N\}$ – a finite set of agents;
+* $\mathcal{S}$ – a finite set of states;
+* $\mathbf{A} = \prod_i \mathcal{A}^i = \mathcal{A}_1 \times \mathcal{A}_2 \times \ldots \times \mathcal{A}_N$ – a joint state of actions, where $\mathcal{A}^i$ is an action space for the $i^{\text{th}}$ agent; 
+* $\rho = \Delta(\mathcal{S})$ – initial state distribution.
+*  $\mathbf{O} = \prod_i \mathcal{O}^i =\mathcal{O}_1 \times \mathcal{O}_2 \times \ldots \times \mathcal{O}_N$ – a joint observation space where $\mathcal{O}^i$ is the observation space for the $i^{\text{th}}$ agent.
+* $O^i: \mathcal{S} \times \mathbf{A} \times \mathcal{O}^i \rightarrow \Delta(\mathcal{O}^i)$ -- an observation function of the $i^{\text{th}}$ agent, $\mathbf{O}: \mathcal{S} \times \mathbf{A} \times \mathbf{O} \rightarrow \Delta(\mathbf{O})$ – an observation function for the joint observation.
 
 The game proceeds as follows. The game starts in an initial state $s_0 \sim \rho$. At time $t$, an agent $i \in \mathcal{I}$ receives a private observation $o_t^i$ governed by the observation function, $O^i(o_t^i | s_{t+1}, \mathbf{a}_t)$, and chooses an action $a^i_t \in \mathcal{A}^i$ and executes it simultaneously with all other agents. Each action can be denoted as $\mathbf{a} = (a^i, a^{-i})$ where $\cdot^{-i}$ denotes actions of all but the $i^\text{th}$ agent.
 
-* Given the state $s_t$ and agents' joint action $\mathbf{a}_t = \{a^i_t\}$, the environment transitions to the next state according to the state transition function $P(s_{t+1}|s_t, \mathbf{a}_t): \ \mathcal{S} \times \mathbf{A} \times S \rightarrow \Delta(S)$.
-* for the agent reward function is defined as $r_t^i = R^i(s_{t+1}, \mathbf{a}_t, s_{t}): \mathcal{S} \times \mathbf{A} \times \mathcal{S} \rightarrow \mathbb{R}$.
-Each agent aims to find a behavioural policy $\pi^i(a^i_t|h^i_t) \in \Pi^i: \mathcal{T} \rightarrow \Delta(\mathcal{A}^i)$ conditioned on action-observation history $h_t = (s_0, \mathbf{o}_0, \mathbf{a}_0, s_1,  \mathbf{o}_1, \mathbf{a}_1, \ldots, s_t, \mathbf{o}_t) \in \mathcal{T} = (\mathcal{S} \times \mathbf{A} \times \mathbf{O})^*$ that can guide the agent to take sequential actions such that the discounted cumulative reward of the joint policy $\pi = (\pi^i, \pi^{-i})$ is maximised:$$
-  \pi \in  \arg \max_{\pi}  \mathbb{E}_{s_{t+1} \sim P(\cdot|s_t, \mathbf{a}_t), \ \mathbf{o}_t \sim \mathbf{O}(\mathbf{o}_t | s_{t+1}, \mathbf{a}_t), \ a^{-i}_t \in \pi^{-i}(\cdot|h^{-i}_t) } \left[ \sum_{t\geq 0} \gamma^t r^i_{t+1}| s_0 \sim \rho, a^i_t \sim \pi^i(\cdot|h^i_t)  \right]$$
+* Given the state $s_t$ and agents' joint action $\mathbf{a}\_t = \{a^i\_t\}$, the environment transitions to the next state according to the state transition function $P(s\_{t+1}|s\_t, \mathbf{a}\_t): \ \mathcal{S} \times \mathbf{A} \times S \rightarrow \Delta(S)$.
+* for the agent reward function is defined as $r\_t^i = R^i(s_{t+1}, \mathbf{a}\_t, s\_{t}): \mathcal{S} \times \mathbf{A} \times \mathcal{S} \rightarrow \mathbb{R}$.
+Each agent aims to find a behavioural policy $\pi^i(a^i\_t|h^i\_t) \in \Pi^i: \mathcal{T} \rightarrow \Delta(\mathcal{A}^i)$ conditioned on action-observation history $h\_t = (s\_0, \mathbf{o}\_0, \mathbf{a}\_0, s\_1,  \mathbf{o}\_1, \mathbf{a}\_1, \ldots, s\_t, \mathbf{o}\_t) \in \mathcal{T} = (\mathcal{S} \times \mathbf{A} \times \mathbf{O})^*$ that can guide the agent to take sequential actions such that the discounted cumulative reward of the joint policy $\pi = (\pi^i, \pi^{-i})$ is maximised:
+```math
+  \pi \in  \arg \max_{\pi}  \mathbb{E}_{s_{t+1} \sim P(\cdot|s_t, \mathbf{a}_t), \ \mathbf{o}_t \sim \mathbf{O}(\mathbf{o}_t | s_{t+1}, \mathbf{a}_t), \ a^{-i}_t \in \pi^{-i}(\cdot|h^{-i}_t) } \left[ \sum_{t\geq 0} \gamma^t r^i_{t+1}| s_0 \sim \rho, a^i_t \sim \pi^i(\cdot|h^i_t)  \right]
+```
 where $\gamma \in [0, 1)$ -- a discount factor. 
 
 ## Environment configuration 
