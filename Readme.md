@@ -218,7 +218,7 @@ Could be movable and immovable, those are different with colouring. Only active 
 
 Obstacles could be extended to complex primitives but for a whille being designed as
 ```yaml
-Wall: WallElement
+Obstacle: ObstacleElement
 StartingPosition: Vector3
 StartingRotation: Quaternion
 Type: Movable/Immovable
