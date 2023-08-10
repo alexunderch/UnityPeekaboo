@@ -1,16 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using EnvironmentConfiguration;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Policies;
-using Unity.MLAgents.Sensors.Reflection;
 
+
+/// <summary>
+/// This class specifies behaviour of an agent
+/// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class MAPFAgent : Agent
-{   
+{       
+    //by default, each agent is active
     [SerializeField] public bool isActive = true;
 
     public Rigidbody agentRb;
@@ -30,6 +32,8 @@ public class MAPFAgent : Agent
     private int collisionCounter = 0;
 
     public bool IsActive {get; set;}
+
+    [HideInInspector]
     public int CollisionCounter {get; private set;}
 
     public override void OnEpisodeBegin() 
@@ -49,15 +53,21 @@ public class MAPFAgent : Agent
             this.gameObject.tag = "ActiveAgent";
 
     }
+
+    /// <summary>
+    /// Initialising agent here: rigidbody, colours, materials... 
+    /// </summary>
     public override void Initialize()
     {
-        envSettings = new EnvSettings();
+        envController = GetComponentInParent<EnvController>();
+        envSettings = envController.EnvSettings;
+
         agentRb = this.GetComponent<Rigidbody>();
         agentCl = this.GetComponent<Collider>();
+        //vision is done via raycasting
         raySensor = this.GetComponent<RayPerceptionSensorComponent3D>();
         var agentColour = envSettings.activeAgentColour;
 
-        envController = GetComponentInParent<EnvController>();
         if (!isActive)
         {
             agentColour = envSettings.passiveAgentColour;
@@ -75,9 +85,9 @@ public class MAPFAgent : Agent
             envController.UpdateStatistics();
         }
 
-        if (other.gameObject.CompareTag("Wall"))
+        if (other.gameObject.CompareTag("Obstacle"))
         {
-            //to prevent an agent incapable to move walls bump into them on purpose
+            //to prevent an agent incapable to move obstacles bump into them on purpose
             collisionCounter++;
             AddReward(-(float)collisionCounter/100f);
         }
@@ -95,7 +105,7 @@ public class MAPFAgent : Agent
             AddReward(envSettings.invdividualRewards[GameEvent.AgentHitAgent]);
         }
 
-        if (other.gameObject.CompareTag("Wall"))
+        if (other.gameObject.CompareTag("Obstacle"))
         {
             var reward = envSettings.invdividualRewards[GameEvent.AgentHitAgent];
 
@@ -109,6 +119,10 @@ public class MAPFAgent : Agent
     
     }
 
+    /// <summary>
+    /// The method is respondible for mappting actions as numbers to doing smth in the environment 
+    /// </summary>
+    /// <param name="actions"></param>
     private void MoveAgentDiscrete(ActionSegment<int> actions) 
     {
         //3 types of actions
@@ -187,12 +201,16 @@ public class MAPFAgent : Agent
     {
         //forawhile the agent could stand only on surface
         //possibly, could be extended 
-        if (other.gameObject.CompareTag("Surface")) 
+        if (other.gameObject.CompareTag("Surface") || other.gameObject.CompareTag("WalkableObstacle")) 
         {
             isGrounded = true;
         }
     }
 
+    /// <summary>
+    /// Action Distribution is here
+    /// </summary>
+    /// <param name="actionBuffers"></param>
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         //reward per step;
@@ -200,8 +218,10 @@ public class MAPFAgent : Agent
         MoveAgentDiscrete(actionBuffers.DiscreteActions);
     }
 
-
-    // For human controller
+    /// <summary>
+    /// Human controller, a Unity internal method
+    /// </summary>
+    /// <param name="actionsOut"></param>
     public override void Heuristic(in ActionBuffers actionsOut)
     {
 

@@ -7,10 +7,11 @@ TagManager:
   - Surface
   - Agent
   - Barrier
-  - Wall
   - Goal
   - ActiveAgent
   - Scene
+  - Obstacle
+  - WalkableObstacle
   layers:
   - Default
   - TransparentFX

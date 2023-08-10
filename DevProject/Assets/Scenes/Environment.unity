@@ -276,7 +276,7 @@ GameObject:
   - component: {fileID: 116282990}
   m_Layer: 0
   m_Name: Cube (5)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -379,9 +379,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &116282990
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -425,7 +424,7 @@ GameObject:
   - component: {fileID: 153492598}
   m_Layer: 0
   m_Name: Cube (3)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -528,9 +527,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &153492598
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -574,7 +572,7 @@ GameObject:
   - component: {fileID: 224266836}
   m_Layer: 0
   m_Name: Cube (4)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -677,9 +675,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &224266836
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -740,10 +737,6 @@ Transform:
   - {fileID: 705507995}
   - {fileID: 1608441034}
   - {fileID: 1675967989}
-  - {fileID: 836220469}
-  - {fileID: 2073509424}
-  - {fileID: 344330206}
-  - {fileID: 1958066615}
   - {fileID: 1792355497}
   - {fileID: 388257913}
   - {fileID: 1661804392}
@@ -867,11 +860,12 @@ MonoBehaviour:
   m_SensorName: RayPerceptionSensor
   m_DetectableTags:
   - Goal
-  - Wall
+  - Obstacke
   - Agent
   - ActiveAgent
   - Surface
   - Barrier
+  - WalkableObstacle
   m_RaysPerDirection: 8
   m_MaxRayDegrees: 180
   m_SphereCastRadius: 0.33
@@ -880,7 +874,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967291
   m_ObservationStacks: 1
-  m_AlternatingRayOrder: 1
   rayHitColor: {r: 0.764151, g: 0.75978416, b: 0.2198736, a: 1}
   rayMissColor: {r: 0.21960784, g: 0.21960784, b: 0.21960784, a: 1}
   m_StartVerticalOffset: 0
@@ -1092,11 +1085,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 344330205}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 28.300003, y: -0.79999924, z: 0}
-  m_LocalScale: {x: 200, y: 20, z: 2}
+  m_LocalPosition: {x: 100, y: 10, z: 0}
+  m_LocalScale: {x: 200.00002, y: 20, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 227215282}
+  m_Father: {fileID: 1675967989}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!65 &344330207
@@ -1213,7 +1206,7 @@ GameObject:
   - component: {fileID: 388257918}
   m_Layer: 0
   m_Name: Cube (1)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1316,9 +1309,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &388257918
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1362,7 +1354,7 @@ GameObject:
   - component: {fileID: 475976678}
   m_Layer: 0
   m_Name: Cube (6)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1465,9 +1457,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &475976678
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1639,7 +1630,7 @@ GameObject:
   - component: {fileID: 585562597}
   m_Layer: 0
   m_Name: Cube (15)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1742,9 +1733,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 1
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &585562597
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1788,7 +1778,7 @@ GameObject:
   - component: {fileID: 593367224}
   m_Layer: 0
   m_Name: Cube (12)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1891,9 +1881,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &593367224
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1937,7 +1926,7 @@ GameObject:
   - component: {fileID: 606808763}
   m_Layer: 0
   m_Name: Secret Wall
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1996,9 +1985,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.7075472, g: 0.20902717, b: 0.08343716, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!65 &606808765
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2180,7 +2168,7 @@ GameObject:
   - component: {fileID: 738186557}
   m_Layer: 0
   m_Name: Cube (18)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2283,9 +2271,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &738186557
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2341,11 +2328,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 836220468}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -71.7, y: -0.79999924, z: -100}
+  m_LocalPosition: {x: 0, y: 10, z: -100}
   m_LocalScale: {x: 200, y: 20, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 227215282}
+  m_Father: {fileID: 1675967989}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &836220470
@@ -2462,7 +2449,7 @@ GameObject:
   - component: {fileID: 912469261}
   m_Layer: 0
   m_Name: Cube (11)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2565,9 +2552,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &912469261
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2703,7 +2689,7 @@ GameObject:
   - component: {fileID: 1009195908}
   m_Layer: 0
   m_Name: Cube (7)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2806,9 +2792,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &1009195908
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2852,7 +2837,7 @@ GameObject:
   - component: {fileID: 1074484277}
   m_Layer: 0
   m_Name: Cube (9)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2955,9 +2940,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &1074484277
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3001,7 +2985,7 @@ GameObject:
   - component: {fileID: 1227238370}
   m_Layer: 0
   m_Name: Cube (19)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3104,9 +3088,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &1227238370
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3150,7 +3133,7 @@ GameObject:
   - component: {fileID: 1264353842}
   m_Layer: 0
   m_Name: Cube (13)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3253,9 +3236,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &1264353842
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3338,11 +3320,12 @@ MonoBehaviour:
   m_SensorName: RayPerceptionSensor1
   m_DetectableTags:
   - Goal
-  - Wall
+  - Obstacke
   - Agent
   - ActiveAgent
   - Surface
   - Barrier
+  - WalkableObstacle
   m_RaysPerDirection: 8
   m_MaxRayDegrees: 180
   m_SphereCastRadius: 0.33
@@ -3351,7 +3334,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967291
   m_ObservationStacks: 1
-  m_AlternatingRayOrder: 1
   rayHitColor: {r: 0.764151, g: 0.75978416, b: 0.2198736, a: 1}
   rayMissColor: {r: 0.7169812, g: 0.091313645, b: 0.70937794, a: 1}
   m_StartVerticalOffset: 0
@@ -3551,7 +3533,7 @@ GameObject:
   - component: {fileID: 1516654986}
   m_Layer: 0
   m_Name: Cube (16)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3654,9 +3636,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &1516654986
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3902,11 +3883,12 @@ MonoBehaviour:
   m_SensorName: RayPerceptionSensor1
   m_DetectableTags:
   - Goal
-  - Wall
+  - Obstacke
   - Agent
   - ActiveAgent
   - Surface
   - Barrier
+  - WalkableObstacle
   m_RaysPerDirection: 8
   m_MaxRayDegrees: 180
   m_SphereCastRadius: 0.33
@@ -3915,7 +3897,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967291
   m_ObservationStacks: 1
-  m_AlternatingRayOrder: 1
   rayHitColor: {r: 0.764151, g: 0.75978416, b: 0.2198736, a: 1}
   rayMissColor: {r: 0.7169812, g: 0.091313645, b: 0.70937794, a: 1}
   m_StartVerticalOffset: 0
@@ -3952,7 +3933,7 @@ GameObject:
   - component: {fileID: 1661804397}
   m_Layer: 0
   m_Name: Cube (2)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4055,9 +4036,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 1
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &1661804397
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4101,7 +4081,7 @@ GameObject:
   - component: {fileID: 1669070796}
   m_Layer: 0
   m_Name: Cube (17)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4204,9 +4184,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &1669070796
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4261,7 +4240,11 @@ Transform:
   m_LocalPosition: {x: -71.7, y: -10.799999, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 836220469}
+  - {fileID: 2073509424}
+  - {fileID: 344330206}
+  - {fileID: 1958066615}
   m_Father: {fileID: 227215282}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4281,7 +4264,7 @@ GameObject:
   - component: {fileID: 1792355502}
   m_Layer: 0
   m_Name: Cube
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4384,9 +4367,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &1792355502
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4430,7 +4412,7 @@ GameObject:
   - component: {fileID: 1877599778}
   m_Layer: 0
   m_Name: Cube (10)
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4533,9 +4515,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.8113208, g: 0.11863652, b: 0.11863652, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &1877599778
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4591,11 +4572,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1958066614}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -171.7, y: -0.79999924, z: 0}
-  m_LocalScale: {x: 200, y: 20, z: 2}
+  m_LocalPosition: {x: -100, y: 10, z: 0}
+  m_LocalScale: {x: 200.00002, y: 20, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 227215282}
+  m_Father: {fileID: 1675967989}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!65 &1958066616
@@ -4849,7 +4830,7 @@ GameObject:
   - component: {fileID: 2011547359}
   m_Layer: 0
   m_Name: Secret Wallq
-  m_TagString: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4952,9 +4933,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMovable: 0
-  wallMaterial: {fileID: 0}
-  wallMovableColour: {r: 0.82588625, g: 0.3572948, b: 0.13118657, a: 0}
+  obstacleMaterial: {fileID: 0}
+  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
 --- !u!54 &2011547359
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5010,11 +4990,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2073509423}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -71.7, y: -0.79999924, z: 100}
+  m_LocalPosition: {x: 0, y: 10, z: 100}
   m_LocalScale: {x: 200, y: 20, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 227215282}
+  m_Father: {fileID: 1675967989}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &2073509425

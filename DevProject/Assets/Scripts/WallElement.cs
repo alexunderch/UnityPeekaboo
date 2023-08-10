@@ -1,75 +1,102 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Xml.Serialization;
-using UnityEngine;
 using EnvironmentConfiguration;
+using UnityEngine;
 
 
 [RequireComponent(typeof(Rigidbody))]
-public class WallElement : MonoBehaviour
+public class Obstacle : MonoBehaviour
 {
-    private EnvSettings envSettings = new EnvSettings();
+    /// <summary>
+    /// This class represents a basic building block 
+    /// for obstacles contruction. Ones can be movable or not.
+    /// If all obstacles are immovable, then it is a classic maze.
+    /// </summary>
 
-    [SerializeField] private bool isMovable = false;
-    [SerializeField] public Material wallMaterial;
-    [SerializeField] public Color wallMovableColour;
+    private EnvSettings envSettings;
+    private EnvController envController;
+
+    private bool isMovable = false;
+
+    //if an object is grounded, then smth can move upon it
+    private bool isWalkable = false;
+    private bool isReconfigurable = false; // WIP; maybe it'll stay dummy 
+
+    [SerializeField] public Material obstacleMaterial;
+    [SerializeField] public Color obstacleMovableColour;
     
 
-    private Collider wallCollider = null;
-    private Rigidbody wallRigidbody = null;
-    private Vector3 currentPosition = Vector3.zero;
-    
+    private Collider obstacleCollider = null;
+    private Rigidbody obstacleRigidbody = null;
 
     public bool IsMovable { get; set; }
-    public float WallMovingSpeed { get; private set; }
+    public bool IsWalkable { get; private set; }
+
+    public float ObstacleMovingSpeed { get; private set; }
     
     void Awake()
     {
-        wallCollider = GetComponent<Collider>();
-        wallRigidbody = GetComponent<Rigidbody>();
+        obstacleCollider = GetComponent<Collider>();
+        obstacleRigidbody = GetComponent<Rigidbody>();
     }
 
     private void Start()
     {
+        envController = GetComponentInParent<EnvController>();
+        envSettings = envController.EnvSettings;
 
-        currentPosition = transform.localPosition;
-        wallRigidbody.useGravity = true;
-        wallRigidbody.constraints = RigidbodyConstraints.FreezePositionY;
+        obstacleRigidbody.useGravity = true;
+        obstacleRigidbody.constraints = RigidbodyConstraints.FreezePositionY;
+
+        this.gameObject.tag = "Obstacle";
 
         if (isMovable)
         {   
-            GetComponent<Renderer>().material.color = wallMovableColour;
-            wallRigidbody.mass /= 2f;
-            wallRigidbody.isKinematic = false;
+            GetComponent<Renderer>().material.color = obstacleMovableColour;
+            obstacleRigidbody.mass /= 2f;
+            obstacleRigidbody.isKinematic = false;
         }
         else
         {
-            wallRigidbody.mass *= 1000f;
-            wallRigidbody.drag = 10;
-            wallRigidbody.isKinematic = true;
-            wallRigidbody.constraints = RigidbodyConstraints.FreezePosition;
-            wallRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-            GetComponent<Renderer>().material.color = envSettings.immovableWallColour;
+            //bigger mass to restrict any possible collisions
+            obstacleRigidbody.mass *= 1000f;
+            obstacleRigidbody.drag = 10;
+            obstacleRigidbody.isKinematic = true;
+            obstacleRigidbody.constraints = RigidbodyConstraints.FreezePosition;
+            obstacleRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+            GetComponent<Renderer>().material.color = envSettings.immovableObstacleColour;
+        }
+
+        if (isWalkable)
+        {
+            //to walk upon smth the object should have more friction
+            obstacleRigidbody.drag *= 4;
+            this.gameObject.tag = "WalkableObstacle";
         }
     }
 
-
+    /// <summary>
+    /// This method responds for collision handling.
+    /// Only agents tagged as "ActiveAgent" are able to move obstacles.
+    /// Obstacle moves to a direction the agent is moving to, so there could be pushes or pulls.
+    /// --- Unity's method.
+    /// </summary>
+    /// <param name="other"></param>
     public void OnCollisionStay(Collision other)
     {   
         if (isMovable)
         {   
             if (other.gameObject.CompareTag("ActiveAgent"))        
             {
-                var dirToMove = other.rigidbody.velocity.normalized; //moving the wall to the direction a pusher moves to
-                transform.Translate(dirToMove * Time.deltaTime * envSettings.movableWallSpeed);
+                var dirToMove = other.rigidbody.velocity.normalized;
+                transform.Translate(dirToMove * Time.deltaTime * envSettings.movableObstacleSpeed);
             } 
             else if (other.gameObject.CompareTag("Agent"))
             {
                 //what a dirty thing -- kinda hopping on my beautiful programming knowledge
-                wallRigidbody.isKinematic = true;
+                obstacleRigidbody.isKinematic = true;
             }     
 
         }
+
     }
 
 

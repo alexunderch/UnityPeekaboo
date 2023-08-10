@@ -7,6 +7,11 @@ using EnvironmentConfiguration;
 using MazeConfiguration;
 
 
+
+/// <summary>
+/// A base class to set up game objects in the scene
+/// It is characterised by the object itself, its local position, rotation and type
+/// </summary>
 [System.Serializable]
 public class Info
 {
@@ -18,10 +23,14 @@ public class Info
 
     public virtual string EnumTypeToString()
     {
+        //dummy virtual method
         return new string("");
     }
 
-
+    /// <summary>
+    /// Converts an Info class instance to one that could be serialised in `.json` format 
+    /// </summary>
+    /// <returns></returns>
     public NonSerializableBuildingBlock ConvertForSerialization()
     {
         return new NonSerializableBuildingBlock
@@ -46,19 +55,19 @@ public class PlayerInfo : Info
 [System.Serializable]
 public class ObstacleInfo : Info
 {
-    public WallElement wallElement;
-    public WallType wallType;
+    public Obstacle obstacleElement;
+    public ObstacleType obstacleType;
 
     public override string  EnumTypeToString()
     {
-        return wallType.ToString();
+        return obstacleType.ToString();
     }
 }
 
 [System.Serializable]
 public class GoalInfo : Info
 {
-    public GoalBehaviour Goal;
+    public GoalInstance Goal;
     public GoalType goalType;
 
     public override string EnumTypeToString()
@@ -68,13 +77,23 @@ public class GoalInfo : Info
 
 }
 
+
+/// <summary>
+/// This class controlls behaviour of the whole environment
+/// </summary>
 public class EnvController : MonoBehaviour
 {   
     private GameObject area;
 
+    [HideInInspector]
     private EnvSettings envSettings = new EnvSettings();
-    private MazeBuilder mazeBuilder = new MazeBuilder();
+    
+    [HideInInspector]
+    public EnvSettings EnvSettings { get; private set; }
 
+    
+    //to dump or load configuations using files 
+    private MazeBuilder mazeBuilder = new MazeBuilder();
 
     [HideInInspector]
     private Bounds areaBounds;
@@ -98,14 +117,16 @@ public class EnvController : MonoBehaviour
 
     private SimpleMultiAgentGroup m_AgentGroup;
 
+    //spawn flags
     public bool RandomizeAgentPosition = true;
     public bool RandomizeAgentRotation = true;
     public bool RandomizeGoalPosition = true;
-
+    
+    // to deprecate one!
     public bool DifferentiateRoles = false;
 
 
-    private int numberActiveAgents;
+    private int numberActiveAgents = 0;
     private int resetTimer = 0;
     public int MaxEnvironmentSteps;
 
@@ -124,7 +145,7 @@ public class EnvController : MonoBehaviour
         mazeBuilder.SetMapSizes
         (
             new Vector2(areaBounds.size.x, areaBounds.size.z), 
-            BlocksList[0].wallElement.GetComponent<Renderer>().bounds.size
+            BlocksList[0].obstacleElement.GetComponent<Renderer>().bounds.size
         );
 
         foreach (var item in BlocksList) 
@@ -187,13 +208,13 @@ public class EnvController : MonoBehaviour
         if (!envSettings.loadEnvironmentConfiguration)
         {
             area = GameObject.FindGameObjectsWithTag("Surface")[0];
-            foreach (var item in FindObjectsOfType<WallElement>())
+            foreach (var item in FindObjectsOfType<Obstacle>())
             {   
                 var obstacle = new ObstacleInfo();
-                obstacle.wallElement = item;
+                obstacle.obstacleElement = item;
                 obstacle.StartingPos = item.transform.localPosition;
                 obstacle.StartingRot = item.transform.localRotation;
-                obstacle.wallType = item.IsMovable ? WallType.Movable : WallType.Immovable;
+                obstacle.obstacleType = item.IsMovable ? ObstacleType.Movable : ObstacleType.Immovable;
                 BlocksList.Add(obstacle);  
             }
 
@@ -212,11 +233,10 @@ public class EnvController : MonoBehaviour
 
                 m_AgentGroup.RegisterAgent(item);
 
-
             }
 
 
-            foreach (var item in FindObjectsOfType<GoalBehaviour>())
+            foreach (var item in FindObjectsOfType<GoalInstance>())
             {
                 var goal = new GoalInfo();
                 goal.Goal = item;
@@ -345,7 +365,7 @@ public class EnvController : MonoBehaviour
         {   
             var pos = item.StartingPos;
             var rot = item.StartingRot;
-            item.wallElement.transform.SetLocalPositionAndRotation(pos, rot);
+            item.obstacleElement.transform.SetLocalPositionAndRotation(pos, rot);
 
         }
         Physics.SyncTransforms();

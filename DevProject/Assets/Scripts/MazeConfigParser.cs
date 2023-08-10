@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-// using Newtonsoft.Json.Linq;
 
 /*
 Here we define configuration files workflow
@@ -124,9 +122,12 @@ namespace MazeConfiguration
         public float[] baseBuildingBlockSize;
         public List<SerializableBuildingBlock> Walls;
 
-        public MapStructureDescription(int[] cmapSize, 
-                                       float[] cbaseBuildingBlockSize, 
-                                       List<SerializableBuildingBlock> walls)
+        public MapStructureDescription
+        (
+            int[] cmapSize, 
+            float[] cbaseBuildingBlockSize, 
+            List<SerializableBuildingBlock> walls
+        )
         {
             mapSize = cmapSize;
             baseBuildingBlockSize = cbaseBuildingBlockSize;
@@ -142,9 +143,12 @@ namespace MazeConfiguration
         public List<SerializableBuildingBlock> Goals;
         public MapStructureDescription Map;
 
-        public ConfigStructureDecription(List<SerializableBuildingBlock> agents, 
-                                         List<SerializableBuildingBlock> goals, 
-                                         MapStructureDescription map)
+        public ConfigStructureDecription
+        (
+            List<SerializableBuildingBlock> agents, 
+            List<SerializableBuildingBlock> goals, 
+            MapStructureDescription map
+        )
         {
             Agents = agents;
             Goals = goals;

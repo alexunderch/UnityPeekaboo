@@ -66,5 +66,6 @@
 
 # VSCode hidden files
 *.vscode/
+*.vsconfig/
 
 .DS_Store

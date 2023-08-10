@@ -6,7 +6,7 @@ A Unity-based environment to benchmark multi-agent pathfinding and cooperative b
 
 # Road map
 * [ ] Wassup latex?
-* [ ] Convert the project to C# SDK
+* [x] Convert the project to C# SDK
 * [ ] Assets for the environment
 * [ ] Bugs in the envritonment: spawns, movement glitches etc.  
 * [ ] Development documentation
@@ -16,6 +16,14 @@ A Unity-based environment to benchmark multi-agent pathfinding and cooperative b
 
 ## Installation
 
+Unity version used ib development: `Unity 2022.3.4f1`, some tweaks are possible, `.NET` version 7
+
+A good documentation page about how to install these — [click](https://learn.unity.com/tutorial/install-the-unity-hub-and-editor) \
+Also, a Unity ML Agents Plug-in is needed to compile environments properly, their documentation is written well, in the official docs the aspect is covered — [click](https://github.com/alexunderch/ml-agents-patch/blob/develop/docs/Installation.md) 
+
+>[NOTE]
+The setup is insensitive to an OS if everything has been done right.
+
 ### Inference 
 
 Via `pip` (tested on `python3.9`, `python3.10`)
@@ -24,17 +32,19 @@ pip install -q mlagents==0.30.0 gdown
 ```
 or from source
 ```Bash
-git clone -b main --single-branch https://github.com/alexunderch/ml-agents-patch.git ml-agents
+git clone --single-branch https://github.com/alexunderch/ml-agents-patch.git ml-agents
 python -m pip install -q ./ml-agents/ml-agents-envs
 python -m pip install -q ./ml-agents/ml-agents
 python -m pip install gdown
 ```
 
 ### Working with environment executables
+
 Download one from the storage
 ```Bash
 gdown 17amSPhxIe2mz14xb0XTJfiHpBiPoy1Ll
 ```
+>[IMPORTANT]
 Unzip to your working directory
 ```Bash
 unzip dev_release.zip
@@ -131,17 +141,23 @@ Essentially, we have the following observation/action spaces:
 ```
 (Observation Stacks) * (1 + 2 * Rays Per Direction) * (Num Detectable Tags + 2)
 ```
+
+>[Note] As for dev release it is 136-dimensional vector
+
 * `Action space`: multi-discrete ([`gym.Spaces.MultiDiscrete`](https://gymnasium.farama.org/api/spaces/fundamental/#gymnasium.spaces.MultiDiscrete)), one is useful to represent game controllers or keyboards where each key can be represented as a discrete action space.
-    - moving arrow keys: `0` -- noop, `1` -- W, `2` -- A, `3` -- S, `4` -- D.
-    - spinning action (rotations): `0` -- noop, `1` -- clockwise, `2` -- anticlockwise    
-    - jumping action: `0` -- noop, `1` -- vertical jump
+    - moving arrow keys: `0` – noop, `1` – W, `2` – A, `3` – S, `4` – D.
+    - spinning action (rotations): `0` – noop, `1` – clockwise, `2` – anticlockwise    
+    - jumping action: `0` – noop, `1` – vertical jump
     - attacking/goal-picking action (**not done yet**, maybe in the future)
 
 * `Reward function` is a compostion of individual and cooperative reward fucntions, and it is done as follows:
     - Individual rewards:
-        * An agent hit a wall = $$\begin{cases} -\frac{1 \cdot n_\text{collisions}}{100}, & \text{one can move walls}, \\ -10\frac{1 \cdot n_\text{collisions}}{100}, & \text{otherwise}\end{cases}$$
-        * An agent hit other agent = 
-        $$\begin{cases} -10, & \text{both agents can move walls}, \\ 0, & \text{otherwise}\end{cases}$$ 
+        * An agent hit a wall = 
+            - $-\frac{1 \cdot n\_\text{collisions}}{100}$ if one can move walls
+            - $-10\frac{1 \cdot n\_\text{collisions}}{100}$ otherwise
+        * An agent hit other agent =
+            -  $-10$ if both agents can move walls, i.e. both are active
+            - $+0$ otherwise
         * An agent hit a boundary = $-100$ to the agent
         * An active agent (i.e. can move walls) hit a goal = $+100$ to the agent
         * As the goal of an agent is to complete any given task as soon as possible, every agent is fined per step as $-\frac{1}{1+\text{ episode length}}$  
@@ -150,6 +166,7 @@ Essentially, we have the following observation/action spaces:
     - Competitive rewards (**not done yet**)
         * Agent of a team "X" achived the goal (some goals) faster than the other team...
 
+> [!NOTE]
 Note that only cooperative behaviour is currently supported, competitve setting should be done in the nearest future.
 
 * `Environment resets`: as `Unity ML Agents` mostly supports episodic environments, so the env. reset is possible due to:
@@ -157,6 +174,7 @@ Note that only cooperative behaviour is currently supported, competitve setting 
     - exceeding the episode length (episode truncation)
     - one of the agents accidentally fell off the environment (episode truncation) 
 
+> [!NOTE]
 Note that resets are done deteministically according to inner (not inference) environment seed!
 
 ### Substrate
@@ -184,15 +202,41 @@ TODO: add pictures and more detailed descriptions
 ### Agents
 Could be distinguished with 2 roles implemented: `active` and `passive`. These two are different in game mechanics: an active agent can move obstacles and achieve goals, or emerge behaviour, whereas a passive agent can only move across the environment and hint the active agent that the goal could be nearby.
 
+Each agent is described with the following structure
+```yaml
+Agent: MAPFAgent
+StartingPosition: Vector3
+StartingRotation: Quaternion
+Type: Active/Passive
+```
+
 ### Obstacles
 
-Could be movable and immovable, those are different with colouring. Only active agents could move obstacles.
+Could be movable and immovable, those are different with colouring. Only active agents could move obstacles. 
+
+Obstacles could be extended to complex primitives but for a whille being designed as
+```yaml
+Wall: WallElement
+StartingPosition: Vector3
+StartingRotation: Quaternion
+Type: Movable/Immovable
+```
 
 ### Goals
 Goals are need to be triggered to be completed. A completed goal changes its colour, and it could only be done by an active agent. To solve the environment, agents need to complete all the goals there. 
 
+Goal are represented using the following structures
+```yaml
+Goal: GoalBehaviour
+StartingPosition: Vector3
+StartingRotation: Quaternion
+Type: Sphere/Cube/Whatever
+```
 
 ## Create and save environments using config. files
+
+>[IMPORTANT]
+By design, any maps with any given seed could be saved to json and recovered back. However, as we work with executables *mostly* for Python API, so this part could be helpful for development. 
 
 ### `json` files format
 A config sketch (the file could be found in [./configs/maps/dev_map.json](./configs/maps/dev_map.json)):
@@ -232,3 +276,7 @@ A config sketch (the file could be found in [./configs/maps/dev_map.json](./conf
     }
 }
 ```
+
+## Similar things 
+1. https://madrona-engine.github.io/
+2. https://www.megaverse.info

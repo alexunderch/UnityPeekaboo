@@ -2,32 +2,44 @@ using UnityEngine;
 using System.Collections.Generic;
 
 namespace EnvironmentConfiguration
-{
+{   
+    /// <summary>
+    /// Enum for evertying that should be rewarded because it'd happened
+    /// </summary>
     public enum GameEvent
     {
         ActiveAgentHitGoal = 0,
         AgentHitGoal = 1,
         AgentOutOfBounds = 2,
-        AgentHitWall = 3,
+        AgentHitObstacle = 3,
         AgentHitAgent = 4,
         AllGoalsCompleted = 5,
     }
 
+    /// <summary>
+    /// Enum for all the roles possible for agents.
+    /// Active agent can move some objects and demonatrate special behavioural types
+    /// </summary>
     public enum Team 
     {
-        //active agent can move some objects 
-        //and demonstrate special behavioural types
-        //but passive agents cannot
-        Active = 0,
-        Passive = 1,
+        Passive = 0,
+        Active = 1,
     }
 
-    public enum WallType 
+    /// <summary>
+    /// Enum for wall's behavioural types
+    /// </summary>
+    public enum ObstacleType 
     {
         Movable = 0,
         Immovable = 1
     }
 
+    /// <summary>
+    /// WIP! every goal has its own type,
+    /// and the behaviour depends on it.
+    /// Also, there is also possible type transormations given a set of rules
+    /// </summary>
     public enum GoalType
     {
         //goal types could ever appear
@@ -37,7 +49,10 @@ namespace EnvironmentConfiguration
         Default = 3
     }
 
-
+    /// <summary>
+    /// A collection of constants for the environment. 
+    /// Reward mapping is also specified here.
+    /// </summary>
     public class EnvSettings {
 
         public string backupConfigFile = "./configs/maps/dev_map.json";
@@ -57,9 +72,9 @@ namespace EnvironmentConfiguration
         public Color activeAgentColour = Color.red;
         public Color passiveAgentColour = Color.yellow;  
 
-        public Color immovableWallColour = Color.grey; // new Color(0.9f, 0.1f, 0.52f);
-        public Color movableWallColour = new Color(0.84f, 0.54f, 0.18f);  
-        public  float movableWallSpeed = 15f;
+        public Color immovableObstacleColour = Color.grey; // new Color(0.9f, 0.1f, 0.52f);
+        public Color movableObstacleColour = new Color(0.84f, 0.54f, 0.18f);  
+        public  float movableObstacleSpeed = 15f;
 
         public Color goalColour = Color.green; // new Color(0.84f, 0.14f, 0.38f);
         public Color completedGoalColour = Color.blue;// new Color(0.14f, 0.58f, 0.78f);
@@ -84,7 +99,7 @@ namespace EnvironmentConfiguration
 
         public Dictionary<GameEvent, float> invdividualRewards = new Dictionary<GameEvent, float>()
         {
-            {GameEvent.AgentHitWall, -1f},
+            {GameEvent.AgentHitObstacle, -1f},
             {GameEvent.AgentHitAgent, -10f},
             {GameEvent.AgentOutOfBounds, -100f},
             {GameEvent.ActiveAgentHitGoal, 100f},
