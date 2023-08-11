@@ -14,16 +14,15 @@ public class Obstacle : MonoBehaviour
     private EnvSettings envSettings;
     private EnvController envController;
 
-    private bool isMovable = false;
+    [SerializeField] private bool isMovable = false;
 
     //if an object is grounded, then smth can move upon it
-    private bool isWalkable = false;
+    [SerializeField] private bool isWalkable = false;
     private bool isReconfigurable = false; // WIP; maybe it'll stay dummy 
 
-    [SerializeField] public Material obstacleMaterial;
-    [SerializeField] public Color obstacleMovableColour;
+    private Material obstacleMaterial;
+    private Color obstacleMovableColour;
     
-
     private Collider obstacleCollider = null;
     private Rigidbody obstacleRigidbody = null;
 
@@ -41,7 +40,7 @@ public class Obstacle : MonoBehaviour
     private void Start()
     {
         envController = GetComponentInParent<EnvController>();
-        envSettings = envController.EnvSettings;
+        envSettings = envController.envSettings;
 
         obstacleRigidbody.useGravity = true;
         obstacleRigidbody.constraints = RigidbodyConstraints.FreezePositionY;

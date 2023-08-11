@@ -84,12 +84,9 @@ public class GoalInfo : Info
 public class EnvController : MonoBehaviour
 {   
     private GameObject area;
-
-    [HideInInspector]
-    private EnvSettings envSettings = new EnvSettings();
     
     [HideInInspector]
-    public EnvSettings EnvSettings { get; private set; }
+    public EnvSettings envSettings = new EnvSettings();
 
     
     //to dump or load configuations using files 

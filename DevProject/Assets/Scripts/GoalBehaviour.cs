@@ -35,7 +35,7 @@ public class GoalInstance : MonoBehaviour
     void Start()
     {
         envController = GetComponentInParent<EnvController>();
-        envSettings = envController.EnvSettings;
+        envSettings = envController.envSettings;
         Reset();
     }
 

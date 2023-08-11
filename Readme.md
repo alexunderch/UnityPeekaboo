@@ -154,15 +154,15 @@ Essentially, we have the following observation/action spaces:
     - Individual rewards:
         * An agent hit a wall = 
             - $-\frac{1 \cdot n\_\text{collisions}}{100}$ if one can move walls
-            - $-10\frac{1 \cdot n\_\text{collisions}}{100}$ otherwise
+            - $-5\frac{1 \cdot n\_\text{collisions}}{100}$ otherwise
         * An agent hit other agent =
-            -  $-10$ if both agents can move walls, i.e. both are active
+            -  $-0.1$ if both agents can move walls, i.e. both are active
             - $+0$ otherwise
-        * An agent hit a boundary = $-100$ to the agent
-        * An active agent (i.e. can move walls) hit a goal = $+100$ to the agent
+        * An agent hit a boundary = $-1$ to the agent
+        * An active agent (i.e. can move walls) hit a goal = $+1$ to the agent
         * As the goal of an agent is to complete any given task as soon as possible, every agent is fined per step as $-\frac{1}{1+\text{ episode length}}$  
     - Cooperative rewards
-        * All goals were completed = $+100$ to *each* agent.
+        * All goals were completed = $+1$ to *each* agent.
     - Competitive rewards (**not done yet**)
         * Agent of a team "X" achived the goal (some goals) faster than the other team...
 

@@ -60,7 +60,7 @@ public class MAPFAgent : Agent
     public override void Initialize()
     {
         envController = GetComponentInParent<EnvController>();
-        envSettings = envController.EnvSettings;
+        envSettings = envController.envSettings;
 
         agentRb = this.GetComponent<Rigidbody>();
         agentCl = this.GetComponent<Collider>();
@@ -110,7 +110,7 @@ public class MAPFAgent : Agent
             var reward = envSettings.invdividualRewards[GameEvent.AgentHitAgent];
 
             if (!isActive) {
-                reward *= 10f;
+                reward *= 5f;
             }
             AddReward(reward);
 

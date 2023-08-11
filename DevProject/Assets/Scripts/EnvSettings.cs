@@ -94,15 +94,15 @@ namespace EnvironmentConfiguration
         //basic rewards, more is specified in Envroller.cs
         public Dictionary<GameEvent, float> groupRewards = new Dictionary<GameEvent, float>()
         {
-            {GameEvent.AllGoalsCompleted, 100f}
+            {GameEvent.AllGoalsCompleted, 1f}
         };
 
         public Dictionary<GameEvent, float> invdividualRewards = new Dictionary<GameEvent, float>()
         {
-            {GameEvent.AgentHitObstacle, -1f},
-            {GameEvent.AgentHitAgent, -10f},
-            {GameEvent.AgentOutOfBounds, -100f},
-            {GameEvent.ActiveAgentHitGoal, 100f},
+            {GameEvent.AgentHitObstacle, -0.01f},
+            {GameEvent.AgentHitAgent, -0.1f},
+            {GameEvent.AgentOutOfBounds, -1f},
+            {GameEvent.ActiveAgentHitGoal, 1f},
         };
 
         public Dictionary<GameEvent, float> CompetitiveRewards = new Dictionary<GameEvent, float>()

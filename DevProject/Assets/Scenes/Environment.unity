@@ -289,7 +289,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 116282984}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -70.6, y: -0.10000038, z: 10}
+  m_LocalPosition: {x: -70.6, y: 0.6000004, z: 10}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -379,8 +379,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &116282990
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -437,7 +437,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 153492592}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -101.7, y: -0.10000038, z: 0}
+  m_LocalPosition: {x: -101.7, y: 0.6000004, z: 0}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -527,8 +527,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &153492598
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -585,7 +585,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 224266830}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -81.7, y: -0.10000038, z: 0}
+  m_LocalPosition: {x: -81.7, y: 0.6000004, z: 0}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -675,8 +675,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &224266836
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -860,7 +860,7 @@ MonoBehaviour:
   m_SensorName: RayPerceptionSensor
   m_DetectableTags:
   - Goal
-  - Obstacke
+  - Obstacle
   - Agent
   - ActiveAgent
   - Surface
@@ -874,6 +874,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967291
   m_ObservationStacks: 1
+  m_AlternatingRayOrder: 1
   rayHitColor: {r: 0.764151, g: 0.75978416, b: 0.2198736, a: 1}
   rayMissColor: {r: 0.21960784, g: 0.21960784, b: 0.21960784, a: 1}
   m_StartVerticalOffset: 0
@@ -1219,7 +1220,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 388257912}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -141.7, y: -0.10000038, z: 0}
+  m_LocalPosition: {x: -141.7, y: 0.6000004, z: 0}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1309,8 +1310,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &388257918
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1367,7 +1368,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 475976672}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -70.6, y: -0.10000038, z: 30}
+  m_LocalPosition: {x: -70.6, y: 0.6000004, z: 30}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1457,8 +1458,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &475976678
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1643,7 +1644,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 585562591}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -20.099998, y: -0.10000038, z: 20}
+  m_LocalPosition: {x: -20.099998, y: 0.6000004, z: 20}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1733,8 +1734,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &585562597
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1791,7 +1792,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 593367218}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -70.6, y: -0.10000038, z: -50}
+  m_LocalPosition: {x: -70.6, y: 0.6000004, z: -50}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1881,8 +1882,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &593367224
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1939,7 +1940,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 606808761}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -70.6, y: -0.10000038, z: 70}
+  m_LocalPosition: {x: -70.6, y: 0.6000004, z: 70}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1985,8 +1986,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 1
+  isWalkable: 1
 --- !u!65 &606808765
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2006,7 +2007,7 @@ BoxCollider:
   m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 3.5}
+  m_Size: {x: 1, y: 1, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &606808766
 MeshRenderer:
@@ -2181,7 +2182,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 738186551}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -103.5, y: -0.10000038, z: 50}
+  m_LocalPosition: {x: -103.5, y: 0.6000004, z: 50}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2271,8 +2272,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &738186557
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2462,7 +2463,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 912469255}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -70.6, y: -0.10000038, z: -30}
+  m_LocalPosition: {x: -70.6, y: 0.6000004, z: -30}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2552,8 +2553,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &912469261
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2702,7 +2703,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1009195902}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -70.6, y: -0.10000038, z: 50}
+  m_LocalPosition: {x: -70.6, y: 0.6000004, z: 50}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2792,8 +2793,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &1009195908
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2850,7 +2851,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1074484271}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -70.6, y: -0.10000038, z: 90}
+  m_LocalPosition: {x: -70.6, y: 0.6000004, z: 90}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2940,8 +2941,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &1074484277
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2998,7 +2999,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1227238364}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -123.5, y: -0.10000038, z: 50}
+  m_LocalPosition: {x: -123.5, y: 0.6000004, z: 50}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3088,8 +3089,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &1227238370
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3146,7 +3147,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1264353836}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -60.1, y: -0.10000038, z: 20}
+  m_LocalPosition: {x: -60.1, y: 0.6000004, z: 20}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3236,8 +3237,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &1264353842
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3320,7 +3321,7 @@ MonoBehaviour:
   m_SensorName: RayPerceptionSensor1
   m_DetectableTags:
   - Goal
-  - Obstacke
+  - Obstacle
   - Agent
   - ActiveAgent
   - Surface
@@ -3334,6 +3335,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967291
   m_ObservationStacks: 1
+  m_AlternatingRayOrder: 1
   rayHitColor: {r: 0.764151, g: 0.75978416, b: 0.2198736, a: 1}
   rayMissColor: {r: 0.7169812, g: 0.091313645, b: 0.70937794, a: 1}
   m_StartVerticalOffset: 0
@@ -3546,7 +3548,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1516654980}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.099998474, y: -0.10000038, z: 20}
+  m_LocalPosition: {x: -0.099998474, y: 0.6000004, z: 20}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3636,8 +3638,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &1516654986
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3883,7 +3885,7 @@ MonoBehaviour:
   m_SensorName: RayPerceptionSensor1
   m_DetectableTags:
   - Goal
-  - Obstacke
+  - Obstacle
   - Agent
   - ActiveAgent
   - Surface
@@ -3897,6 +3899,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967291
   m_ObservationStacks: 1
+  m_AlternatingRayOrder: 1
   rayHitColor: {r: 0.764151, g: 0.75978416, b: 0.2198736, a: 1}
   rayMissColor: {r: 0.7169812, g: 0.091313645, b: 0.70937794, a: 1}
   m_StartVerticalOffset: 0
@@ -3946,7 +3949,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1661804391}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -121.7, y: -0.10000038, z: 0}
+  m_LocalPosition: {x: -121.7, y: 0.6000004, z: 0}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4036,8 +4039,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &1661804397
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4094,7 +4097,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1669070790}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -83.5, y: -0.10000038, z: 50}
+  m_LocalPosition: {x: -83.5, y: 0.6000004, z: 50}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4184,8 +4187,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &1669070796
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4277,7 +4280,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1792355496}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -161.7, y: -0.10000038, z: 0}
+  m_LocalPosition: {x: -161.7, y: 0.6, z: 0}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4367,8 +4370,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &1792355502
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4425,7 +4428,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1877599772}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -70.6, y: -0.10000038, z: -10}
+  m_LocalPosition: {x: -70.6, y: 0.6000004, z: -10}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4515,8 +4518,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 0
+  isWalkable: 0
 --- !u!54 &1877599778
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4829,7 +4832,7 @@ GameObject:
   - component: {fileID: 2011547358}
   - component: {fileID: 2011547359}
   m_Layer: 0
-  m_Name: Secret Wallq
+  m_Name: Secret Wall (1)
   m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4843,7 +4846,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2011547353}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -40.1, y: -0.10000038, z: 20}
+  m_LocalPosition: {x: -40.1, y: 0.6000004, z: 20}
   m_LocalScale: {x: 20, y: 20, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4869,7 +4872,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 3.5}
+  m_Size: {x: 1, y: 1, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &2011547356
 MeshRenderer:
@@ -4933,8 +4936,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00999ea266dc1035abe317d5cd6d51fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleMaterial: {fileID: 0}
-  obstacleMovableColour: {r: 0, g: 0, b: 0, a: 0}
+  isMovable: 1
+  isWalkable: 0
 --- !u!54 &2011547359
 Rigidbody:
   m_ObjectHideFlags: 0
