@@ -8,15 +8,17 @@ A Unity-based environment to benchmark multi-agent pathfinding and cooperative b
 * [x] Wassup latex?
 * [x] Convert the project to C# SDK
 * [ ] Assets for the environment
-* [ ] Bugs in the envritonment: spawns, movement glitches etc.  
+* [x] ~~Bugs in the envritonment: spawns, movement glitches etc~~ Now, careful with collisions
 * [ ] Development documentation
 * [ ] Instantianting scenes from `json`
 * [ ] Add more envrionment configurations 
-* [ ] Add baselines
+* [x] Add baselines
+* [ ] Reward function
+* [ ] Test observation recordings
 
 ## Installation
 
-Unity version used ib development: `Unity 2022.3.4f1`, some tweaks are possible, `.NET` version 7
+Unity version used ib development: `Unity 2022.3.4f1`, some tweaks are possible (used packages are verified for `Unity 2020.1` and later), `.NET` version 7
 
 A good documentation page about how to install these — [click](https://learn.unity.com/tutorial/install-the-unity-hub-and-editor) \
 Also, a Unity ML Agents Plug-in is needed to compile environments properly, their documentation is written well, in the official docs the aspect is covered — [click](https://github.com/alexunderch/ml-agents-patch/blob/develop/docs/Installation.md) 
@@ -42,8 +44,10 @@ python -m pip install gdown
 
 Download one from the storage
 ```Bash
-gdown 17amSPhxIe2mz14xb0XTJfiHpBiPoy1Ll
+gdown 17amSPhxIe2mz14xb0XTJfiHpBiPoy1Ll #old
+gdown 1eyhkMawzGRMcnwXlfQosmX9notko7w0V #new
 ```
+
 >[IMPORTANT]
 Unzip to your working directory
 ```Bash
@@ -177,6 +181,29 @@ Note that only cooperative behaviour is currently supported, competitve setting 
 > [!NOTE]
 Note that resets are done deteministically according to inner (not inference) environment seed!
 
+#### Note about raycasts in Unity
+
+A `Ray` is simply a data struct in Unity that represents a point of origin and a direction for the `Ray` to travel.
+```C#
+Ray ray = new Ray(transform.position, transform.forward);
+```
+
+`Hit`-variable is a place to store the data that could have been got when the `Ray` hit a `Collider`.
+```C#
+RaycastHit hitData;
+Vector3 hitPosition = hitData.point; // world position of the hit
+float hitDistance = hitData.distance; // distance to one from the ray origin
+```
+Also can get an iformation about the `tag` and `gameObject` was hit.
+```C#
+string tag = hitData.collider.tag;
+```
+
+Observation structure could be described as following:
+* `DetectableTags`, or a list of tags in the scene to compare against
+* `MaxRayDegrees`: Cone size for rays. Using 90 degrees will cast rays to the left and right. Greater than 90 degrees will go backwards.
+* `SphereCastRadius`, or a radius of sphere to cast. Set to zero for raycasts
+
 ### Substrate
  Partially observable stochastic game $G = \langle \mathcal{I}, \mathcal{S}, \{\mathcal{A}\}\_{i=1}^N, P,  \rho, \{R^i\}\_{i=1}^N, \{\mathcal{O}^i\}\_{i=1}^N, \{O^i\}\_{i=1}^N, \gamma \rangle$:
 
@@ -282,3 +309,4 @@ A config sketch (the file could be found in [./configs/maps/dev_map.json](./conf
 ## Similar things 
 1. https://madrona-engine.github.io/
 2. https://www.megaverse.info
+3. https://github.com/NVIDIA-Omniverse/IsaacGymEnvs
