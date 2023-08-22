@@ -1,0 +1,3 @@
+[submodule "external/ml-agents"]
+	path = external/ml-agents
+	url = https://github.com/alexunderch/ml-agents-patch
