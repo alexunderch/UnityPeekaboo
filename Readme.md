@@ -1,4 +1,4 @@
-# Minigrid
+# Peekaboo!
 A Unity-based environment to benchmark multi-agent pathfinding and cooperative behaviour.
 
 ![image info](./media/overview.png)
@@ -153,7 +153,7 @@ Essentially, we have the following observation/action spaces:
 (Observation Stacks) * (1 + 2 * Rays Per Direction) * (Num Detectable Tags + 2)
 ```
 
->[Note] As for dev release it is 136-dimensional vector
+>[Note] As for dev release it is 99-dimensional vector
 
 * `Action space`: multi-discrete ([`gym.Spaces.MultiDiscrete`](https://gymnasium.farama.org/api/spaces/fundamental/#gymnasium.spaces.MultiDiscrete)), one is useful to represent game controllers or keyboards where each key can be represented as a discrete action space.
     - moving arrow keys: `0` – noop, `1` – W, `2` – A, `3` – S, `4` – D.
@@ -189,6 +189,7 @@ Note that only cooperative behaviour is currently supported, competitve setting 
 Note that resets are done deteministically according to inner (not inference) environment seed!
 
 #### Note about raycasts in Unity
+Inspired by the [blog](https://gamedevbeginner.com/raycasts-in-unity-made-easy/).
 
 A `Ray` is simply a data struct in Unity that represents a point of origin and a direction for the `Ray` to travel.
 ```C#

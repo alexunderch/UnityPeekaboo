@@ -68,7 +68,7 @@ namespace EnvironmentConfiguration
         public int recordLength = 0;      
 
         public float agentMass = 1.337f;
-        public float agentMovingSpeed = 0.69f;
+        public float agentMovingSpeed = 69f;
         public float agentRotationSpeed = 99.5f;
         public float agentJumpForce = 300.0f;
         public float agentFallingForce = 400.0f;
