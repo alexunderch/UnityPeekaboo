@@ -9,22 +9,28 @@ A Unity-based environment to benchmark multi-agent pathfinding and cooperative b
 * [x] Convert the project to C# SDK
 * [ ] Assets for the environment
 * [x] ~~Bugs in the envritonment: spawns, movement glitches etc~~ Now, careful with collisions
-* [ ] Development documentation
-* [ ] Instantianting scenes from `json`
-* [ ] Add more envrionment configurations 
+* [x] ~~Development documentation~~ (sort of, development pipelines are questionable)
+* [ ] Instantianting scenes from `json`, add more envrionment configurations 
 * [x] Add baselines
-* [ ] Reward function
-* [ ] Test observation recordings
+* [ ] Test baselines
 
 ## Installation
 
-Unity version used ib development: `Unity 2022.3.4f1`, some tweaks are possible (used packages are verified for `Unity 2020.1` and later), `.NET` version 7
+Unity version used in development: `Unity 2022.3.4f1`, some tweaks are possible (used packages are verified for `Unity 2020.1` and later), `.NET` version 7
 
 A good documentation page about how to install these — [click](https://learn.unity.com/tutorial/install-the-unity-hub-and-editor) \
 Also, a Unity ML Agents Plug-in is needed to compile environments properly, their documentation is written well, in the official docs the aspect is covered — [click](https://github.com/alexunderch/ml-agents-patch/blob/develop/docs/Installation.md) 
 
 >[NOTE]
 The setup is insensitive to an OS if everything has been done right.
+
+```Bash
+git submodule init
+git submodule update
+python -m pip install -q wheel gdown
+python -m pip install -q ./external/ml-agents/ml-agents-envs
+python -m pip install -q ./external/ml-agents/ml-agents
+```
 
 ### Inference 
 
@@ -91,6 +97,7 @@ The dir would have following structure (some elements were omitted intentionally
 ```
 
 
+
 ### Development
 
 TODO: add Unity/C# requirements
@@ -103,11 +110,11 @@ from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.envs.unity_parallel_env import UnityParallelEnv
 
 class GridEnv(UnityParallelEnv):
-    def __init__(self, executable_path: str, seed: int | None = None, no_grahics: bool = True):
+    def __init__(self, executable_path: str, seed: int | None = None, no_grahics: bool = True, worker_id: int):
         """
         PettingZoo parallel API
         """
-        self._worker_id: int = 0
+        self._worker_id: int = worker_id
         unity_env = UnityEnvironment(
                                     file_name=executable_path, 
                                     worker_id=self._worker_id, 
@@ -122,7 +129,7 @@ class GridEnv(UnityParallelEnv):
 def test():
     executable_path = "path/to/executable.x86_64"
 
-    env = GridEnv(executable_path=executable_path, seed=42, no_grahics=True)
+    env = GridEnv(executable_path=executable_path, seed=42, no_grahics=True, worker_id=0)
     print("Action space:", env.action_spaces)
     print("Observation space:", env.observation_spaces)
     print("Reset Info\n", env.reset())    
@@ -152,7 +159,7 @@ Essentially, we have the following observation/action spaces:
     - moving arrow keys: `0` – noop, `1` – W, `2` – A, `3` – S, `4` – D.
     - spinning action (rotations): `0` – noop, `1` – clockwise, `2` – anticlockwise    
     - jumping action: `0` – noop, `1` – vertical jump
-    - attacking/goal-picking action (**not done yet**, maybe in the future)
+    - attacking/goal-picking action, or use action: `0` – noop, `1` – trigger action
 
 * `Reward function` is a compostion of individual and cooperative reward fucntions, and it is done as follows:
     - Individual rewards:
@@ -160,7 +167,7 @@ Essentially, we have the following observation/action spaces:
             - $-\frac{1 \cdot n\_\text{collisions}}{100}$ if one can move walls
             - $-5\frac{1 \cdot n\_\text{collisions}}{100}$ otherwise
         * An agent hit other agent =
-            -  $-0.1$ if both agents can move walls, i.e. both are active
+            -  $-0.01$ if both agents can move walls, i.e. both are active
             - $+0$ otherwise
         * An agent hit a boundary = $-1$ to the agent
         * An active agent (i.e. can move walls) hit a goal = $+1$ to the agent
@@ -200,9 +207,13 @@ string tag = hitData.collider.tag;
 ```
 
 Observation structure could be described as following:
-* `DetectableTags`, or a list of tags in the scene to compare against
-* `MaxRayDegrees`: Cone size for rays. Using 90 degrees will cast rays to the left and right. Greater than 90 degrees will go backwards.
-* `SphereCastRadius`, or a radius of sphere to cast. Set to zero for raycasts
+* `RaysPerDirection`, or a number of rays to the left and right of center (using `4`)
+* `DetectableTags`, or a list of tags in the scene to compare against (`Agent`, `ActiveAgent`, `Obstacle`, `MovableObstacle`, `Surface`, `Barrier` etc.)
+* `MaxRayDegrees`: Cone size for rays. Using 90 degrees will cast rays to the left and right. Greater than 90 degrees will go backwards (using `45` degrees here).
+* `SphereCastRadius`, or a radius of sphere to cast. Set to zero for raycasts (using `0.33`)
+
+Thus, resulting observation size equals to `(1 + 2 * 4) * (9 + 2) = 99`
+
 
 ### Substrate
  Partially observable stochastic game $G = \langle \mathcal{I}, \mathcal{S}, \{\mathcal{A}\}\_{i=1}^N, P,  \rho, \{R^i\}\_{i=1}^N, \{\mathcal{O}^i\}\_{i=1}^N, \{O^i\}\_{i=1}^N, \gamma \rangle$:
@@ -226,10 +237,21 @@ where $\gamma \in [0, 1)$ – a discount factor.
 
 ## Environment configuration 
 
-TODO: add pictures and more detailed descriptions
+### Implemented ones
+
+<p align="center">
+  <img src="./media/header.png"/>
+</p>
+<p align="center">
+    <em>Mom, i designed my first maze</em>
+</p>
+
+TO BE DONE
+
+
 
 ### Agents
-Could be distinguished with 2 roles implemented: `active` and `passive`. These two are different in game mechanics: an active agent can move obstacles and achieve goals, or emerge behaviour, whereas a passive agent can only move across the environment and hint the active agent that the goal could be nearby.
+Could be distinguished with 2 roles implemented: `active` and `passive`. These two are different in game mechanics: an active agent can move obstacles and achieve goals, or emerge behaviour, whereas a passive agent can only move across the environment. Both agents share the mechanics of achieving goals by triggering 'em, however, the active agent can invoke the `use action` to emerge some new behavioral patterns. For instance, the active agent can move some obstacles only having invoked `use action` to an obstacle, which "unlocks" one.
 
 Each agent is described with the following structure
 ```yaml
@@ -256,7 +278,7 @@ Goals are need to be triggered to be completed. A completed goal changes its col
 
 Goal are represented using the following structures
 ```yaml
-Goal: GoalElement
+Goal: GoalInstance
 StartingPosition: Vector3
 StartingRotation: Quaternion
 Type: Sphere/Cube/Whatever
