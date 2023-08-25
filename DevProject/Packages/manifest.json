@@ -2,8 +2,8 @@
   "dependencies": {
     "com.unity.collab-proxy": "2.0.7",
     "com.unity.feature.development": "1.0.1",
-    "com.unity.ml-agents": "file:/home/alex_ch/Documents/ml-agents/com.unity.ml-agents",
-    "com.unity.ml-agents.extensions": "file:/home/alex_ch/Documents/ml-agents/com.unity.ml-agents.extensions",
+    "com.unity.ml-agents": "file:../../external/ml-agents/com.unity.ml-agents",
+    "com.unity.ml-agents.extensions": "file:../../external/ml-agents/com.unity.ml-agents.extensions",
     "com.unity.textmeshpro": "3.0.6",
     "com.unity.timeline": "1.7.5",
     "com.unity.toolchain.win-x86_64-linux-x86_64": "2.0.6",

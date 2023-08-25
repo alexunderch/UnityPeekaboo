@@ -50,11 +50,8 @@ public class GoalInstance : MonoBehaviour
         if (other.gameObject.CompareTag("ActiveAgent") || other.gameObject.CompareTag("Agent"))
         {
             isTouched = true;
-            if (other.gameObject.CompareTag("ActiveAgent"))
-            {
-                GetComponent<Renderer>().material.color = envSettings.completedGoalColour;
-                isCompleted = true;
-            }
+            GetComponent<Renderer>().material.color = envSettings.completedGoalColour;
+            isCompleted = true;
         }
     }
 }

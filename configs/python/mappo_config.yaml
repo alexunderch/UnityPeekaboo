@@ -1,14 +1,14 @@
     environment:
-      environment_executable: "../../Executables/dev_release.x86_64"
+      environment_executable: "../../Executables/new_stable_dev/dev_release.x86_64"
       seed: 42
       render: false
     
     agent:
-      agent_hidden_dim: 128
+      agent_hidden_dim: 1024
       shared_critic: false
       shared_optimization: false
 
-      ent_coeff: 0.1
+      ent_coeff: 0.01
       vf_coeff: 0.1
       clip_coeff: 0.1
       gamma: 0.99
@@ -16,25 +16,24 @@
       gae_lambda: 0.95
       clip_vloss: true
 
-      batch_size: 1000
+      batch_size: 100
       num_minibatches: 10 
       stack_size: 1 #not used
 
-      total_timesteps: 10000
-      num_learning_epochs: 200
-      num_steps: 200
+      total_timesteps: 1000
+      num_learning_epochs: 300
+      num_steps: 300
       num_eval_steps: 100
       num_estimations: 3 # not used
-
 
       seed: 42
       torch_deterministic: true
 
-      lr: 3.0e-5
+      lr: 3.0e-3
       anneal_lr: true
       device: cuda:0
       max_grad_norm: 10.0
-      target_kl: null 
+      target_kl: 1.0e+5 
 
     wandb:
       track_wandb: true

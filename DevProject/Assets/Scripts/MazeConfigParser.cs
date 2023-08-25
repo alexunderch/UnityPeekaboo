@@ -163,6 +163,10 @@ namespace MazeConfiguration
         //x, y, z = width, height, depth
         private Vector3 baseBlockSize;
 
+        public Vector2 MapSize {get {return mapSize;}}
+        public Vector3 BaseBlockSize {get {return baseBlockSize;}}
+
+        
         public List<NonSerializableBuildingBlock> Room = new List<NonSerializableBuildingBlock>();
         public List<NonSerializableBuildingBlock> Agents = new List<NonSerializableBuildingBlock>();
         public List<NonSerializableBuildingBlock> Goals = new List<NonSerializableBuildingBlock>();

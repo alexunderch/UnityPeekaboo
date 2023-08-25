@@ -1,6 +1,7 @@
 using EnvironmentConfiguration;
 using UnityEngine;
-
+using UnityEngine.Events;
+using System;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Obstacle : MonoBehaviour
@@ -14,51 +15,56 @@ public class Obstacle : MonoBehaviour
     private EnvSettings envSettings;
     private EnvController envController;
 
-    [SerializeField] private bool isMovable = false;
+    [SerializeField] public bool isMovable = false;
+    private bool allowedToMove = false;
 
     //if an object is grounded, then smth can move upon it
     [SerializeField] private bool isWalkable = false;
-    private bool isReconfigurable = false; // WIP; maybe it'll stay dummy 
+    // private bool isReconfigurable = false; // WIP; maybe it'll stay dummy 
 
     private Material obstacleMaterial;
-    private Color obstacleMovableColour;
     
     private Collider obstacleCollider = null;
     private Rigidbody obstacleRigidbody = null;
 
-    public bool IsMovable { get; set; }
-    public bool IsWalkable { get; private set; }
+    // public bool IsMovable { get; set; }
+    // public bool AllowedToMove { get; private set;}
+
 
     public float ObstacleMovingSpeed { get; private set; }
     
-    void Awake()
+    public void Awake()
     {
         obstacleCollider = GetComponent<Collider>();
         obstacleRigidbody = GetComponent<Rigidbody>();
     }
 
-    private void Start()
+    public void Reset()
+    {
+        allowedToMove = false;
+        obstacleRigidbody.isKinematic = true;
+        obstacleRigidbody.useGravity = true;
+        obstacleRigidbody.constraints = RigidbodyConstraints.FreezePositionY;
+    }
+
+    public void Start()
     {
         envController = GetComponentInParent<EnvController>();
         envSettings = envController.envSettings;
 
-        obstacleRigidbody.useGravity = true;
-        obstacleRigidbody.constraints = RigidbodyConstraints.FreezePositionY;
-
         this.gameObject.tag = "Obstacle";
+        Reset();
 
         if (isMovable)
         {   
-            GetComponent<Renderer>().material.color = obstacleMovableColour;
-            obstacleRigidbody.mass /= 2f;
-            obstacleRigidbody.isKinematic = false;
+            this.gameObject.tag = "MovableObstacle";
+            GetComponent<Renderer>().material.color = envSettings.movableObstacleColour;
         }
         else
         {
             //bigger mass to restrict any possible collisions
             obstacleRigidbody.mass *= 1000f;
             obstacleRigidbody.drag = 10;
-            obstacleRigidbody.isKinematic = true;
             obstacleRigidbody.constraints = RigidbodyConstraints.FreezePosition;
             obstacleRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
             GetComponent<Renderer>().material.color = envSettings.immovableObstacleColour;
@@ -68,7 +74,15 @@ public class Obstacle : MonoBehaviour
         {
             //to walk upon smth the object should have more friction
             obstacleRigidbody.drag *= 4;
-            this.gameObject.tag = "WalkableObstacle";
+        }
+    }
+
+    public void MovingRequestHandler(string name)
+    {   
+        if (this.name == name)
+        {
+            obstacleRigidbody.isKinematic = false;
+            allowedToMove = true;
         }
     }
 
@@ -81,22 +95,19 @@ public class Obstacle : MonoBehaviour
     /// <param name="other"></param>
     public void OnCollisionStay(Collision other)
     {   
-        if (isMovable)
+        if (isMovable && allowedToMove)
         {   
             if (other.gameObject.CompareTag("ActiveAgent"))        
             {
                 var dirToMove = other.rigidbody.velocity.normalized;
-                transform.Translate(dirToMove * Time.deltaTime * envSettings.movableObstacleSpeed);
+                transform.Translate(dirToMove * Time.fixedDeltaTime * envSettings.movableObstacleSpeed);
             } 
-            else if (other.gameObject.CompareTag("Agent"))
-            {
-                //what a dirty thing -- kinda hopping on my beautiful programming knowledge
-                obstacleRigidbody.isKinematic = true;
-            }     
-
+            
         }
-
+        if (isMovable && other.gameObject.CompareTag("ActiveAgent"))
+        {
+            Reset();
+        }
     }
-
 
 }
