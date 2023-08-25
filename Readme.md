@@ -1,4 +1,4 @@
-# Minigrid
+# Peekaboo!
 A Unity-based environment to benchmark multi-agent pathfinding and cooperative behaviour.
 
 ![image info](./media/overview.png)
