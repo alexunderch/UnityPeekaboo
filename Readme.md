@@ -189,6 +189,7 @@ Note that only cooperative behaviour is currently supported, competitve setting 
 Note that resets are done deteministically according to inner (not inference) environment seed!
 
 #### Note about raycasts in Unity
+Inspired by the [blog](https://gamedevbeginner.com/raycasts-in-unity-made-easy/).
 
 A `Ray` is simply a data struct in Unity that represents a point of origin and a direction for the `Ray` to travel.
 ```C#
