@@ -487,9 +487,8 @@ class MAPPOAgent:
 
                 training_logs = {
                                 "epoch": learning_epoch,
-                                f"ratios/{self.possible_agents[agent_ind]}": ratio.mean(0).item(),
                                 "lr": self.optimizers[agent_ind].param_groups[0]["lr"],
-                                "grad norm": calc_grad_norm(self.agents[agent_ind].parameters()),
+                                f"grad norm/{self.possible_agents[agent_ind]}": calc_grad_norm(self.agents[agent_ind].parameters()),
                                 "losses/value loss": array_to_dict(value_losses.mean(0), agent_ids),
                                 "losses/pg loss": array_to_dict(policy_losses.mean(0), agent_ids),
                                 "losses/entropy loss": array_to_dict(entropy_losses.mean(0), agent_ids),
