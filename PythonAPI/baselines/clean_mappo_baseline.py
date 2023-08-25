@@ -18,8 +18,6 @@ from omegaconf import DictConfig, OmegaConf
 sys.path.append("..")
 from peekaboo_environment import PeekabooEnv
 
-
-
 def init_layer(layer: nn.Module, std: float=np.sqrt(2), bias_const: float=0.0):        
     torch.nn.init.orthogonal_(layer.weight, std)
     torch.nn.init.constant_(layer.bias, bias_const)
@@ -155,20 +153,32 @@ class ActorCriticAgent(nn.Module):
     def __init__(self,
                  agent_id: str,
                  environment: PeekabooEnv,
-                 hidden_dim: int) -> None:
+                 hidden_dim: int,
+                 cent_critic_state_dim: int | None = None) -> None:
         super().__init__()
     
         state_dim = environment.observation_space(agent=agent_id).shape[0]
         action_dims = environment.action_space(agent=agent_id).nvec
         self.actor_network = MultiDiscreteActorNetwork(state_dim=state_dim, hidden_dim=hidden_dim, action_space=action_dims)
+        
+        self.shared_critic = cent_critic_state_dim is not None
+        state_dim = cent_critic_state_dim if self.shared_critic else state_dim
         self.critic_network = CriticNetwork(state_dim=state_dim, hidden_dim=hidden_dim)
 
-    def get_value(self, state: torch.Tensor):
-        return self.critic_network(state)
+    def get_value(self, state: torch.Tensor, cent_state: torch.Tensor | None = None):
+        return self.critic_network(state if not self.shared_critic else cent_state)
 
-    def get_action_and_value(self, state: torch.Tensor, action_mask: torch.Tensor = None, action: torch.Tensor | None=None):
-        value = self.critic_network(state)
+    
+    def get_action(self, state: torch.Tensor,  action_mask: torch.Tensor | None = None, action: torch.Tensor | None=None):
         env_action, logprob, entropy = self.actor_network(state, action_mask=action_mask, action=action)
+        return env_action, logprob, entropy
+    
+    def get_action_and_value(self, state: torch.Tensor, 
+                                   cent_state: torch.Tensor | None = None,
+                                   action_mask: torch.Tensor | None = None, 
+                                   action: torch.Tensor | None=None):
+        value = self.get_value(state, cent_state)
+        env_action, logprob, entropy = self.get_action(state, action_mask=action_mask, action=action)
         return value, env_action, logprob, entropy
 
 
@@ -219,7 +229,14 @@ class MAPPOAgent:
         self.possible_agents = self.environment.possible_agents 
         self.num_agents = len(self.possible_agents)
 
-        self.agents = [ActorCriticAgent(agent_id=agent_id, environment=self.environment, hidden_dim=self.agent_hidden_dim).to(self.device) for agent_id in self.possible_agents]
+        self.centralized_observation_shape = np.sum([self.environment.observation_space(agent_id).shape[0] for agent_id in self.possible_agents]) 
+        self.agents = [
+            ActorCriticAgent(agent_id=agent_id, 
+                             environment=self.environment, 
+                             hidden_dim=self.agent_hidden_dim, 
+                             cent_critic_state_dim=self.centralized_observation_shape if self.shared_critic else None).to(self.device) 
+            for agent_id in self.possible_agents
+            ]
         self.optimizers = [torch.optim.AdamW(self.agents[i].parameters(), lr=self.lr, eps=1e-5) for i in range(self.num_agents)]
 
 
@@ -270,6 +287,9 @@ class MAPPOAgent:
             rb_action_masks = [[] for _ in range(self.num_steps)]
 
             rb_logprobs = [[] for _ in range(self.num_steps)]
+
+            rb_cent_obs = torch.zeros((self.num_steps, self.centralized_observation_shape)).to(self.device)
+
             rb_rewards = torch.zeros((self.num_steps, len(agent_ids))).to(self.device)
             rb_terms =  torch.zeros((self.num_steps, len(agent_ids))).to(self.device)
             rb_values =  torch.zeros((self.num_steps, len(agent_ids))).to(self.device)
@@ -282,13 +302,16 @@ class MAPPOAgent:
                 for agent_ind in range(self.num_agents):    
                     self.optimizers[agent_ind].param_groups[0]["lr"] = lrnow
 
-            for collection_step in range(self.num_steps):                
+            for collection_step in range(self.num_steps):          
+                rb_cent_obs[collection_step] = torch.cat(next_obs, dim=-1).to(self.device) 
                 rb_obs[collection_step] = next_obs 
                 rb_action_masks[collection_step] = next_action_mask
                 rb_terms[collection_step] = next_done
                 for agent_ind in range(self.num_agents):
                     with torch.no_grad():
-                        value, action, logprob, entropy = self.agents[agent_ind].get_action_and_value(next_obs[agent_ind], action_mask=next_action_mask)
+                        value, action, logprob, entropy = self.agents[agent_ind].get_action_and_value(next_obs[agent_ind],
+                                                                                                      cent_state=rb_cent_obs[collection_step] if self.shared_critic else None,
+                                                                                                      action_mask=next_action_mask)
                         rb_values[collection_step] = value.flatten()
 
                     rb_actions[collection_step].append(action.flatten())
@@ -339,7 +362,8 @@ class MAPPOAgent:
                 
                 next_value = torch.stack(
                     [
-                        self.agents[agent_ind].get_value(next_obs[agent_ind]).flatten() 
+                        self.agents[agent_ind].get_value(next_obs[agent_ind], 
+                                                         cent_state=rb_cent_obs[collection_step] if self.shared_critic else None).flatten() 
                         for agent_ind in range(self.num_agents)
                     ]
                 )
@@ -372,11 +396,11 @@ class MAPPOAgent:
                     advantages = returns - rb_values
 
             b_obs = torch.stack(flatten_list(rb_obs))
+            b_cent_obs = rb_cent_obs.repeat(self.num_agents, 1)
             b_action_masks = flatten_list(rb_action_masks)
 
             b_logprobs = torch.stack(flatten_list(rb_logprobs))
             b_actions = torch.stack(flatten_list(rb_actions))
-        
         
             b_advantages = advantages.reshape(-1)
             b_returns = returns.reshape(-1)
@@ -403,6 +427,7 @@ class MAPPOAgent:
 
                     for agent_ind in range(self.num_agents):
                         newvalue, _, newlogprob, entropy= self.agents[agent_ind].get_action_and_value(b_obs[mb_inds].squeeze().to(self.device), 
+                                                                                                     cent_state=b_cent_obs[mb_inds].squeeze() if self.shared_critic else None,
                                                                                                      action_mask=[b_action_masks[ind] for ind in mb_inds], 
                                                                                                      action=b_actions.long()[mb_inds].T.to(self.device))
                         logratio = newlogprob - b_logprobs[mb_inds].squeeze(-1).to(self.device)
@@ -421,7 +446,7 @@ class MAPPOAgent:
                         # Policy loss
                 
                         pg_loss1 = -mb_advantages * ratio
-                        pg_loss2 = -mb_advantages * torch.clamp(ratio[agent_ind], 1 - self.clip_coeff, 1 + self.clip_coeff)
+                        pg_loss2 = -mb_advantages * torch.clamp(ratio, 1 - self.clip_coeff, 1 + self.clip_coeff)
                         pg_loss = torch.max(pg_loss1, pg_loss2).mean()
                         
                         policy_losses[minibatch_ind][agent_ind] = pg_loss.item()
@@ -449,7 +474,7 @@ class MAPPOAgent:
                         losses[minibatch_ind][agent_ind] = loss.item()
 
                         self.optimizers[agent_ind].zero_grad()
-                        loss.backward(retain_graph=True)
+                        loss.backward()
                         nn.utils.clip_grad_norm_(self.agents[agent_ind].parameters(), self.max_grad_norm)
                         self.optimizers[agent_ind].step()
                 
@@ -460,7 +485,9 @@ class MAPPOAgent:
                 var_y = np.var(y_true)
                 explained_var = np.nan if var_y == 0 else 1 - np.var(y_true - y_pred) / var_y
 
-                training_logs = {"epoch": learning_epoch,
+                training_logs = {
+                                "epoch": learning_epoch,
+                                f"ratios/{self.possible_agents[agent_ind]}": ratio.mean(0).item(),
                                 "lr": self.optimizers[agent_ind].param_groups[0]["lr"],
                                 "grad norm": calc_grad_norm(self.agents[agent_ind].parameters()),
                                 "losses/value loss": array_to_dict(value_losses.mean(0), agent_ids),
@@ -512,24 +539,30 @@ class MAPPOAgent:
         rb_actions = [[] for _ in range(self.num_eval_steps)]
         rb_action_masks = [[] for _ in range(self.num_eval_steps)]
 
-        rb_probs = [[] for _ in range(self.num_eval_steps)]
+        rb_logprobs = [[] for _ in range(self.num_eval_steps)]
+
+        rb_cent_obs = torch.zeros((self.num_eval_steps, self.centralized_observation_shape)).to(self.device)
+
         rb_rewards = torch.zeros((self.num_eval_steps, len(agent_ids))).to(self.device)
         rb_terms =  torch.zeros((self.num_eval_steps, len(agent_ids))).to(self.device)
         rb_values =  torch.zeros((self.num_eval_steps, len(agent_ids))).to(self.device)
+        rb_entropies = [[] for _ in range(self.num_eval_steps)]
 
-
-        for collection_step in range(self.num_eval_steps):                
+        for collection_step in range(self.num_eval_steps):          
+            rb_cent_obs[collection_step] = torch.cat(next_obs, dim=-1).to(self.device) 
             rb_obs[collection_step] = next_obs 
             rb_action_masks[collection_step] = next_action_mask
             rb_terms[collection_step] = next_done
             for agent_ind in range(self.num_agents):
-                with torch.no_grad():
-                    value, action, logprob, _ = self.agents[agent_ind].get_action_and_value(next_obs[agent_ind], action_mask=next_action_mask)
-                    rb_values[collection_step] = value.flatten()
+                value, action, logprob, entropy = self.agents[agent_ind].action_and_value(next_obs[agent_ind],
+                                                                                          action_mask=next_action_mask)
+                rb_values[collection_step] = value.flatten()
 
                 rb_actions[collection_step].append(action.flatten())
-                rb_probs[collection_step].append(logprob.flatten().exp())
-            
+                rb_logprobs[collection_step].append(logprob.flatten())
+                rb_entropies[collection_step].append(entropy.flatten())
+
+        
             numpy_actions = [a.detach().cpu().tolist() for a in rb_actions[collection_step]]
             tmp_next_obs, reward, tmp_done, info = self.environment.step(array_to_dict(numpy_actions, agent_ids))
 
@@ -576,9 +609,8 @@ def main(config: DictConfig):
     env_config = config.environment
     
     environment = PeekabooEnv(
-        env_config.environment_executable, env_config.seed, not env_config.render
+        env_config.environment_executable, env_config.seed, not env_config.render, 1
     )
-
     agent_args = OmegaConf.to_container(config.agent, resolve=True)
     wandb_args = OmegaConf.to_container(config.wandb, resolve=True)
     learner = MAPPOAgent(environment=environment,
