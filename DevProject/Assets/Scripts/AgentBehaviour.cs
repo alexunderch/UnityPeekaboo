@@ -6,6 +6,8 @@ using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Policies;
 using Unity.MLAgents.Demonstrations;
 using System;
+using Unity.VisualScripting;
+using Unity.Burst.CompilerServices;
 
 public enum MoveActions 
 {
@@ -116,6 +118,10 @@ public class MAPFAgent : Agent
         this.GetComponent<Renderer>().material.color = agentColour;
     }
 
+    public void Update()
+    {
+    }
+
     public void OnTriggerEnter(Collider other) 
     {  
         if (other.gameObject.CompareTag("Goal"))
@@ -125,12 +131,16 @@ public class MAPFAgent : Agent
             envController.UpdateStatistics();
         }
     }
+    private void AvoidPosition(Vector3 localPosition)
+    {
+        transform.localPosition = localPosition + (-localPosition + transform.localPosition).normalized * envSettings.obstacleAvoidanceDistance;
+    }
 
     public void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.CompareTag("Barrier"))
         {   
-            AddReward(envSettings.invdividualRewards[GameEvent.AgentOutOfBounds]);
+           AddReward(envSettings.invdividualRewards[GameEvent.AgentOutOfBounds]);
         }
 
         if (other.gameObject.CompareTag("ActiveAgent"))
@@ -150,11 +160,9 @@ public class MAPFAgent : Agent
                 reward *= 5f;
             }
             AddReward(reward);
-
         }
-        
-        dirToRestrict = agentRb.velocity.normalized;
-        dirToRestrict.y = 0f;
+
+
 
     }
 
@@ -217,10 +225,10 @@ public class MAPFAgent : Agent
                 break;
             case (int) MoveActions.Left:
                 //left
-                dirToGo = transform.right * (-1f);
+                dirToGo = transform.right * (-0.75f);
                 break;
             case (int) MoveActions.Right: 
-                dirToGo = transform.right * 1f;
+                dirToGo = transform.right * 0.75f;
                 break;
             default:
                 dirToGo =  Vector3.zero;
@@ -266,7 +274,7 @@ public class MAPFAgent : Agent
         }
 
         if (useAction == 1)
-        {   
+        {
             moveRequested = true;
         }
 
@@ -284,16 +292,6 @@ public class MAPFAgent : Agent
     }
 
 
-    private bool CheckParallel(Vector3 a, Vector3 b)
-    {
-        float angleBetweenVectors = Vector3.Dot(a, b);
-        if (Mathf.Abs(angleBetweenVectors - 1f) < 0.1f)
-        {
-            return true;
-        }
-        return false;
-    }
-
     public override void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
     {
         var localRotation = this.transform.localRotation;
@@ -308,27 +306,39 @@ public class MAPFAgent : Agent
                 actionMask.SetActionEnabled(2, 1, false);
             }
 
-            // Prevents the agent from moving through the walls
-            // TODO: fix rotations
-
-            if (CheckParallel(dirToRestrict, this.transform.forward.normalized))
+            //// Prevents the agent from moving through the walls
+            //// TODO: fix rotations
+            RaycastHit hit; 
+            if (Physics.Raycast(this.transform.position, 
+                transform.TransformDirection(this.transform.forward), 
+                out hit, 
+                envSettings.obstacleAvoidanceDistance))
             {
-                actionMask.SetActionEnabled(0, (int) MoveActions.Forward, false);
+                actionMask.SetActionEnabled(0, (int)MoveActions.Forward, isActive && hit.collider.CompareTag("MovableObstacle"));
             }
 
-            if (CheckParallel(dirToRestrict, -this.transform.forward.normalized))
+            if (Physics.Raycast(this.transform.position,
+                transform.TransformDirection(-this.transform.forward),
+                out hit, 
+                envSettings.obstacleAvoidanceDistance))
             {
-                actionMask.SetActionEnabled(0, (int) MoveActions.Backward, false);
+                actionMask.SetActionEnabled(0, (int)MoveActions.Backward, isActive && hit.collider.CompareTag("MovableObstacle"));
             }
 
-            if (CheckParallel(dirToRestrict, this.transform.right.normalized))
+            if (Physics.Raycast(this.transform.position,
+                transform.TransformDirection(this.transform.right),
+                out hit, 
+                envSettings.obstacleAvoidanceDistance))
             {
-                actionMask.SetActionEnabled(0, (int) MoveActions.Right, false);
+                actionMask.SetActionEnabled(0, (int)MoveActions.Right, isActive && hit.collider.CompareTag("MovableObstacle"));
             }
 
-            if (CheckParallel(dirToRestrict, -this.transform.right.normalized))
+            if (Physics.Raycast(this.transform.position, 
+                transform.TransformDirection(-this.transform.right), 
+                out hit, 
+                envSettings.obstacleAvoidanceDistance))
             {
-                actionMask.SetActionEnabled(0, (int) MoveActions.Left, false);
+                actionMask.SetActionEnabled(0, (int)MoveActions.Left, isActive && hit.collider.CompareTag("MovableObstacle"));
             }
 
             agentRb.velocity = Vector3.zero;

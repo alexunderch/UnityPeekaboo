@@ -25,8 +25,7 @@ Also, a Unity ML Agents Plug-in is needed to compile environments properly, thei
 The setup is insensitive to an OS if everything has been done right.
 
 ```Bash
-git submodule init
-git submodule update
+git submodule update --init --recursive
 python -m pip install -q wheel gdown
 python -m pip install -q ./external/ml-agents/ml-agents-envs
 python -m pip install -q ./external/ml-agents/ml-agents

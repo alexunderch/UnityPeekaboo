@@ -388,7 +388,7 @@ public class EnvController : MonoBehaviour
 
         foreach (var item in AgentsList)
         {
-            if (item.Agent.transform.localPosition.y < area.transform.localPosition.y)
+            if (item.Agent.transform.localPosition.y < area.transform.localPosition.y + 0.5f)
             {
                 //even one agent falls out of borders implies a reset
                 //even if the goals are completed all agents should stay alive!

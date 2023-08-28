@@ -30,15 +30,8 @@ public class Obstacle : MonoBehaviour
     // public bool IsMovable { get; set; }
     // public bool AllowedToMove { get; private set;}
 
-
     public float ObstacleMovingSpeed { get; private set; }
     
-    public void Awake()
-    {
-        obstacleCollider = GetComponent<Collider>();
-        obstacleRigidbody = GetComponent<Rigidbody>();
-    }
-
     public void Reset()
     {
         allowedToMove = false;
@@ -49,6 +42,9 @@ public class Obstacle : MonoBehaviour
 
     public void Start()
     {
+
+        obstacleCollider = GetComponent<Collider>();
+        obstacleRigidbody = GetComponent<Rigidbody>();
         envController = GetComponentInParent<EnvController>();
         envSettings = envController.envSettings;
 
@@ -94,17 +90,17 @@ public class Obstacle : MonoBehaviour
     /// </summary>
     /// <param name="other"></param>
     public void OnCollisionStay(Collision other)
-    {   
+    {
         if (isMovable && allowedToMove)
         {   
             if (other.gameObject.CompareTag("ActiveAgent"))        
             {
                 var dirToMove = other.rigidbody.velocity.normalized;
-                transform.Translate(dirToMove * Time.fixedDeltaTime * envSettings.movableObstacleSpeed);
-            } 
-            
+                transform.Translate(dirToMove * Time.deltaTime * envSettings.movableObstacleSpeed);
+            }
+            allowedToMove = false; //disallow to be moved after one execution   
         }
-        if (isMovable && other.gameObject.CompareTag("ActiveAgent"))
+        if (isMovable && other.gameObject.CompareTag("Agent"))
         {
             Reset();
         }

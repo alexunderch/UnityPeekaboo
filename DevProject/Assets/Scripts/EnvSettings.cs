@@ -73,13 +73,14 @@ namespace EnvironmentConfiguration
         public float agentJumpForce = 300.0f;
         public float agentFallingForce = 400.0f;
         public float differentiateRolesProb = 0.5f;
+        public float obstacleAvoidanceDistance = 15.1f;
 
         public Color activeAgentColour = Color.red;
         public Color passiveAgentColour =  new Color(1.0f, 0.64f, 0.0f);
 
         public Color immovableObstacleColour = Color.grey; // new Color(0.9f, 0.1f, 0.52f);
         public Color movableObstacleColour = Color.magenta;  
-        public  float movableObstacleSpeed = 12f;
+        public  float movableObstacleSpeed = 20f;
 
         public Color goalColour = Color.green; // new Color(0.84f, 0.14f, 0.38f);
         public Color completedGoalColour = Color.yellow;// new Color(0.14f, 0.58f, 0.78f);
