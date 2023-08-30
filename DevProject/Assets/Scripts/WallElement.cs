@@ -1,7 +1,7 @@
 using EnvironmentConfiguration;
 using UnityEngine;
-using UnityEngine.Events;
 using System;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Obstacle : MonoBehaviour
@@ -22,8 +22,7 @@ public class Obstacle : MonoBehaviour
     [SerializeField] private bool isWalkable = false;
     // private bool isReconfigurable = false; // WIP; maybe it'll stay dummy 
 
-    private Material obstacleMaterial;
-    
+    private Material obstacleMaterial = null;
     private Collider obstacleCollider = null;
     private Rigidbody obstacleRigidbody = null;
 
@@ -31,7 +30,39 @@ public class Obstacle : MonoBehaviour
     // public bool AllowedToMove { get; private set;}
 
     public float ObstacleMovingSpeed { get; private set; }
-    
+
+
+    /// <summary>
+    /// The method carries all visual components to be added via code
+    /// to recover the object from a config
+    /// </summary>
+    /// <returns></returns>
+    public static GameObject ConfigureComponents(ref GameObject gameObject)
+    {
+        gameObject.AddComponent<MeshCollider>();
+        gameObject.AddComponent<BoxCollider>();
+        gameObject.AddComponent<MeshFilter>();
+        gameObject.AddComponent<MeshRenderer>();
+        return gameObject;
+    }
+    public void Awake()
+    {
+     
+        this.gameObject.SetActive(true);
+        if (!isMovable)
+        {
+            this.gameObject.name = "Obstacle";
+            this.gameObject.tag = "Obstacle";
+
+        }
+        else
+        {
+            this.gameObject.name = "Secret Wall";
+            this.gameObject.tag = "MovableObstacle";
+
+        }
+
+    }
     public void Reset()
     {
         allowedToMove = false;
@@ -42,11 +73,18 @@ public class Obstacle : MonoBehaviour
 
     public void Start()
     {
+        var meshCollider = this.GetComponent<MeshCollider>();
+        meshCollider.enabled = true;
+        meshCollider.convex = true;
+        meshCollider.providesContacts = true;
+
+        meshCollider.sharedMesh = Resources.GetBuiltinResource<Mesh>("Cube.fbx");
+        this.GetComponent<MeshFilter>().sharedMesh = meshCollider.sharedMesh;
 
         obstacleCollider = GetComponent<Collider>();
         obstacleRigidbody = GetComponent<Rigidbody>();
         envController = GetComponentInParent<EnvController>();
-        envSettings = envController.envSettings;
+        envSettings = GetComponentInParent<EnvSettings>();
 
         this.gameObject.tag = "Obstacle";
         Reset();

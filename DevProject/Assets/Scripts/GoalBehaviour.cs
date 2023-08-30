@@ -1,5 +1,7 @@
 using UnityEngine;
 using EnvironmentConfiguration;
+using Unity.VisualScripting;
+using Unity.MLAgents.Sensors;
 
 /// <summary>
 /// This class responds 
@@ -9,8 +11,8 @@ public class GoalInstance : MonoBehaviour
     private EnvSettings envSettings;
     private EnvController envController;
     //via method it does not work, why?
-    public bool isCompleted = false;
-    public bool isTouched = false;
+    [HideInInspector] public bool isCompleted = false;
+    [HideInInspector] public bool isTouched = false;
   
     public void Reconfigure(GoalType goalType)
     {
@@ -19,6 +21,20 @@ public class GoalInstance : MonoBehaviour
          For example, it changes its primitive type, colour, position/rotation
          if the agent acted accordingly. Triggering one should lead to the completion, no more
          */
+    }
+
+    /// <summary>
+    /// The method carries all visual components to be added via code
+    /// to recover the object from a config
+    /// </summary>
+    /// <returns></returns>
+    public static GameObject ConfigureComponents(ref GameObject gameObject)
+    {
+        gameObject.AddComponent<MeshRenderer>();
+        gameObject.AddComponent<MeshFilter>();
+        gameObject.AddComponent<VectorSensorComponent>();
+
+        return gameObject;
     }
 
     /// <summary>
@@ -35,7 +51,12 @@ public class GoalInstance : MonoBehaviour
     void Start()
     {
         envController = GetComponentInParent<EnvController>();
-        envSettings = envController.envSettings;
+        envSettings = GetComponentInParent<EnvSettings>();
+
+        var vectorSensor = this.GetComponent<VectorSensorComponent>();
+        vectorSensor.ObservationType = ObservationType.GoalSignal;
+        vectorSensor.ObservationSize = 4;
+
         Reset();
     }
 

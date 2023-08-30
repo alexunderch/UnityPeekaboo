@@ -10,9 +10,10 @@ A Unity-based environment to benchmark multi-agent pathfinding and cooperative b
 * [ ] Assets for the environment
 * [x] ~~Bugs in the envritonment: spawns, movement glitches etc~~ Now, careful with collisions
 * [x] ~~Development documentation~~ (sort of, development pipelines are questionable)
-* [ ] Instantianting scenes from `json`, add more envrionment configurations 
+* [x] Instantianting scenes from `json`, add more envrionment configurations 
 * [x] Add baselines
 * [ ] Test baselines
+* [ ] Convert objects to prefabs to ease the development procedure
 
 ## Installation
 
@@ -289,8 +290,17 @@ Type: Sphere/Cube/Whatever
 >[IMPORTANT]
 By design, any maps with any given seed could be saved to json and recovered back. However, as we work with executables *mostly* for Python API, so this part could be helpful for development. 
 
+To use config, you can modify the following variables in [`EnvSettings.cs`](./DevProject/Assets/Scripts/EnvSettings.cs) or in the inspector, for saving and loading the map.
+```C#
+//saving
+public string backupConfigFile = "../configs/maps/dev_map.json";
+public bool saveEnvironmentConfiguration = true;
+//loading
+public string baseConfigFile = "../configs/maps/dev_map2.json";
+public bool loadEnvironmentConfiguration = true;
+```
 ### `json` files format
-A config sketch (the file could be found in [./configs/maps/dev_map.json](./configs/maps/dev_map.json)):
+A config sketch (the file could be found in [./configs/maps/dev_map2.json](./configs/maps/dev_map2.json)):
 ```
 {
     "Agents":

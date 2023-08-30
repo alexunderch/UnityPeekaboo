@@ -46,7 +46,7 @@ namespace EnvironmentConfiguration
         //goal types could ever appear
         Cube = 0,
         Sphere = 1,
-        Cylinder = 2,
+        Capsule = 2,
         Default = 3
     }
 
@@ -54,10 +54,13 @@ namespace EnvironmentConfiguration
     /// A collection of constants for the environment. 
     /// Reward mapping is also specified here.
     /// </summary>
-    public class EnvSettings {
+    public class EnvSettings : MonoBehaviour {
 
+        public List<string> tags = new() {
+            "Goal", "Obstacle", "MovableObstacle", "Agent", "ActiveAgent", "Surface", "Barrier"};
+ 
         public string backupConfigFile = "../configs/maps/dev_map.json";
-        public string baseConfigFile;
+        public string baseConfigFile = "../configs/maps/dev_map2.json";
         public bool saveEnvironmentConfiguration = false;
         public bool loadEnvironmentConfiguration = false;
 
@@ -74,6 +77,12 @@ namespace EnvironmentConfiguration
         public float agentFallingForce = 400.0f;
         public float differentiateRolesProb = 0.5f;
         public float obstacleAvoidanceDistance = 15.1f;
+
+        //necessary raycast vision arguments
+        public int raysPerDirection = 4;
+        public float maxRayDegrees = 45f;
+        public float raycastSpereRadius = 0.33f;
+        public int rayLength = 69;
 
         public Color activeAgentColour = Color.red;
         public Color passiveAgentColour =  new Color(1.0f, 0.64f, 0.0f);

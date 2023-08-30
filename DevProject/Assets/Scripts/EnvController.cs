@@ -84,9 +84,9 @@ public class GoalInfo : Info
 public class EnvController : MonoBehaviour
 {   
     private GameObject area;
-    
+
     [HideInInspector]
-    public EnvSettings envSettings = new EnvSettings();
+    public EnvSettings envSettings;
 
     
     //to dump or load configuations using files 
@@ -119,9 +119,8 @@ public class EnvController : MonoBehaviour
     public bool RandomizeAgentRotation = true;
     public bool RandomizeGoalPosition = true;
     
-    // to deprecate one!
     public bool differentiateRoles = false;
-
+    private bool onConstruction = true; 
 
     private int numberActiveAgents = 0;
     private int resetTimer = 0;
@@ -139,42 +138,67 @@ public class EnvController : MonoBehaviour
 
         //creating a battleground
         GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        Instantiate(plane, Vector3.zero, Quaternion.identity);
-        //
+        plane.transform.localScale = new Vector3(mapSize.x, 1, mapSize.y);
+        plane.tag = "Surface";
+        plane.name = "RPlane";
+
+        plane.transform.localPosition = this.transform.localPosition; // this.transform.localPosition;
+        
+        plane.transform.SetParent(this.transform);
+        area = plane; 
 
         foreach (var item in mazeBuilder.Room)
         {
             //shit
-            GameObject tmpObject = new GameObject();
+            GameObject tmpObject = new();
+            Obstacle.ConfigureComponents(ref tmpObject);
+            tmpObject.transform.SetParent(this.transform);
             tmpObject.AddComponent<Obstacle>();
-            tmpObject.transform.SetLocalPositionAndRotation(item.Position, item.Rotation);            
-            
-            var obstacle = new ObstacleInfo();
-            obstacle.obstacleElement = tmpObject.GetComponent<Obstacle>();
-            obstacle.StartingPos = tmpObject.transform.localPosition;
-            obstacle.StartingRot = tmpObject.transform.localRotation;
+
+            tmpObject.transform.localScale = buildingBlockSize;
+            tmpObject.transform.SetLocalPositionAndRotation(item.Position, item.Rotation);
+
+            var obstacle = new ObstacleInfo
+            {
+                obstacleElement = tmpObject.GetComponent<Obstacle>(),
+                StartingPos = tmpObject.transform.localPosition,
+                StartingRot = tmpObject.transform.localRotation
+            };
+
+
             if (Enum.TryParse(item.Type, out ObstacleType obstacleType))
                 obstacle.obstacleType = obstacleType;
-
+            
+            obstacle.obstacleElement.isMovable = obstacleType == ObstacleType.Movable;
             BlocksList.Add(obstacle);
         }
 
         foreach (var item in mazeBuilder.Agents)
         {
-            GameObject tmpObject = new GameObject();
-            tmpObject.AddComponent<GoalInstance>();
-            tmpObject.transform.SetLocalPositionAndRotation(item.Position, item.Rotation);            
-            
-            var agent = new PlayerInfo();
-            agent.Agent = tmpObject.GetComponent<MAPFAgent>();
-            agent.StartingPos = tmpObject.transform.localPosition;
-            agent.StartingRot = tmpObject.transform.localRotation;
+            GameObject tmpObject = new();
+            MAPFAgent.ConfigureComponents(ref tmpObject);
+            tmpObject.transform.SetParent(this.transform);
+
+            tmpObject.AddComponent<MAPFAgent>();
+            tmpObject.transform.SetLocalPositionAndRotation(item.Position, item.Rotation);
+
+            var agent = new PlayerInfo
+            {
+                Agent = tmpObject.GetComponent<MAPFAgent>(),
+                StartingPos = tmpObject.transform.localPosition,
+                StartingRot = tmpObject.transform.localRotation
+            };
 
             if (Enum.TryParse(item.Type, out Team teamId))
                 agent.teamId = teamId;
 
+            agent.Agent.tag = "Agent";
+            agent.Agent.isActive = false;
+
             if (agent.teamId == Team.Active)
             {
+                agent.Agent.tag = "ActiveAgent";
+                agent.Agent.isActive = true;
                 this.SubscribeAgentToObstacles(ref agent.Agent);
             }
 
@@ -185,31 +209,70 @@ public class EnvController : MonoBehaviour
 
         foreach (var item in mazeBuilder.Goals)
         {
-            GameObject tmpObject = new GameObject();
+            GameObject tmpObject = new();
+            GoalInstance.ConfigureComponents(ref tmpObject);
+            tmpObject.transform.SetParent(this.transform);
+
             tmpObject.AddComponent<GoalInstance>();
-            tmpObject.transform.SetLocalPositionAndRotation(item.Position, item.Rotation);            
+            tmpObject.transform.SetLocalPositionAndRotation(item.Position, item.Rotation);
             
-            var goal = new GoalInfo();
-            goal.Goal = tmpObject.GetComponent<GoalInstance>();
-            goal.StartingPos = tmpObject.transform.localPosition;
-            goal.StartingRot = tmpObject.transform.localRotation;
-            if (Enum.TryParse(item.Type, out GoalType goalType)) 
+            if (Enum.TryParse(item.Type, out GoalType goalType))
+            {
+                GameObject obj; 
+    
+                switch ((int) goalType)
+                {
+                    case (int)GoalType.Sphere:
+                        tmpObject.AddComponent<SphereCollider>();
+                        obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        break;
+                    case (int)GoalType.Cube:
+                        tmpObject.AddComponent<BoxCollider>();
+                        obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        break;
+                    case (int)GoalType.Capsule:
+                        tmpObject.AddComponent<CapsuleCollider>();
+                        obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                        break;
+                    default:
+                        tmpObject.AddComponent<SphereCollider>();
+                        obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        break;
+                }
+
+                Mesh mesh = Instantiate(obj.GetComponent<MeshFilter>().mesh);
+                tmpObject.GetComponent<MeshFilter>().sharedMesh = mesh;
+                Destroy(obj);
+            }
+
+            Collider collider = tmpObject.GetComponent<Collider>();
+            collider.isTrigger = true;
+            tmpObject.name = "Goal";
+            tmpObject.tag = "Goal";
+            tmpObject.transform.localScale = Vector3.one * 10f;
+
+
+            var goal = new GoalInfo
+            {
+                Goal = tmpObject.GetComponent<GoalInstance>(),
+                StartingPos = tmpObject.transform.localPosition,
+                StartingRot = tmpObject.transform.localRotation
+            };
+            
                 goal.goalType = goalType;
 
             GoalsList.Add(goal);
         }
 
         mazeBuilder.Clear();
-
-
     }
 
     public void DumpSceneToConfig(string destinationConfigFile)
     {
         mazeBuilder.SetMapSizes
         (
-            new Vector2(areaBounds.size.x, areaBounds.size.z), 
-            BlocksList[0].obstacleElement.GetComponent<Renderer>().bounds.size
+            new Vector2(area.transform.localScale.x, area.transform.localScale.z), 
+            BlocksList[0].obstacleElement.transform.localScale
         );
 
         foreach (var item in BlocksList) 
@@ -227,7 +290,7 @@ public class EnvController : MonoBehaviour
     private Team AssignRolesRandomly(float assign_prob)
     {   
 
-        System.Random rand = new System.Random(envSettings.seed + 420);
+        System.Random rand = new(envSettings.seed + 420);
 
         if (rand.NextDouble() >= assign_prob)
         {    
@@ -243,7 +306,7 @@ public class EnvController : MonoBehaviour
         numberActiveAgents = 0;
         foreach (var item in AgentsList)
         {
-            numberActiveAgents += (item.teamId == Team.Active ? 1 : 0);
+            numberActiveAgents += item.teamId == Team.Active ? 1 : 0;
         }
 
         if (numberActiveAgents > 0)
@@ -275,107 +338,12 @@ public class EnvController : MonoBehaviour
     public void Start() 
     {      
         Clear();
-        m_AgentGroup = new SimpleMultiAgentGroup();      
-              
-        if (!envSettings.loadEnvironmentConfiguration)
-        {
-            area = GameObject.FindGameObjectsWithTag("Surface")[0];
-            this.transform.position = areaBounds.center;
-            foreach (var item in FindObjectsOfType<Obstacle>())
-            {   
-                if (item.enabled)   
-                {
-                    var obstacle = new ObstacleInfo();
-                    obstacle.obstacleElement = item;
-                    obstacle.StartingPos = item.transform.localPosition;
-                    obstacle.StartingRot = item.transform.localRotation;
-                    obstacle.obstacleType = item.isMovable ? ObstacleType.Movable : ObstacleType.Immovable;
-                    BlocksList.Add(obstacle);  
-                }
-            }
-
-
-            foreach (var item in FindObjectsOfType<MAPFAgent>())
-            {
-                if (item.enabled)   
-                {
-                    var agent = new PlayerInfo();
-                    agent.Agent = item;
-                    if (differentiateRoles)
-                    {
-                        agent.teamId = AssignRolesRandomly(envSettings.differentiateRolesProb);    
-                        agent.Agent.isActive = agent.teamId==Team.Active ? true : false;
-                    }
-                    else
-                    {
-                        agent.teamId = agent.Agent.isActive ? Team.Active : Team.Passive;
-                    }
-
-                    if (agent.teamId == Team.Active)
-                    {
-                        this.SubscribeAgentToObstacles(ref agent.Agent);
-                    }
-                    agent.StartingPos = item.transform.localPosition;
-                    agent.StartingRot = item.transform.localRotation;
-                    AgentsList.Add(agent);  
-
-                    m_AgentGroup.RegisterAgent(item);
-                }
-
-            }
-
-
-            foreach (var item in FindObjectsOfType<GoalInstance>())
-            {
-                if (item.enabled)   
-                {
-                    var goal = new GoalInfo();
-                    goal.Goal = item;
-                    goal.StartingPos = item.transform.localPosition;
-                    goal.StartingRot = item.transform.localRotation;
-                    goal.goalType = GoalType.Sphere;            
-                    GoalsList.Add(goal);
-                }
-            }
-        }
-        else
-        {   
-            try
-            {
-                RecoverSceneFromConfig(envSettings.baseConfigFile);
-            }
-            catch 
-            {
-                Debug.Log("Something went wrong when reading your config file!");
-            }
-        }
-
-        // Sanity checks:
-        // at least one goal
-        // at least one active agent
-
-        if (!CheckActiveAgents())
-        {
-            throw new Exception("Should be at least one active agent");
-        }
-
-        if (GoalsList.Count == 0)
-        {
-            throw new Exception("Should be at least one goal initialised");
-        }
-
-        area.GetComponent<Renderer>().material.color = envSettings.defaultAreaColor;
-        areaBounds = area.GetComponent<Collider>().bounds;
-        areaPosition = area.transform.localPosition;
-
-
-        if (envSettings.saveEnvironmentConfiguration && envSettings.backupConfigFile != null)
-        {
-            this.DumpSceneToConfig(envSettings.backupConfigFile);
-        }
-        //mlagents to know reset func
+        envSettings = this.GetComponent<EnvSettings>();
+        m_AgentGroup = new SimpleMultiAgentGroup();
+        //mlagents to know the reset func
         Academy.Instance.OnEnvironmentReset += ResetScene;  
     }
+
     public void FixedUpdate() {
         // here episode termination is tracked
         resetTimer += 1;
@@ -401,8 +369,7 @@ public class EnvController : MonoBehaviour
 
     private Vector3 GetRandomSpawnPos()
     {
-        var randomSpawnPos = Vector3.zero;
-//        int i = 0;
+        Vector3 randomSpawnPos = Vector3.zero;
         while(true)
         {           
             var randomPosX = UnityEngine.Random.Range(-areaBounds.extents.x * envSettings.spawnAreaMarginMultiplier,
@@ -431,49 +398,163 @@ public class EnvController : MonoBehaviour
         var rotationAngles = envSettings.rotationAngles;
         return Quaternion.Euler(0, UnityEngine.Random.Range(rotationAngles[0], rotationAngles[1]), 0);
     }
+
+    public void ConstructScene()
+    {
+        if (!envSettings.loadEnvironmentConfiguration) //from visual editor;
+        {
+            area = GameObject.FindGameObjectsWithTag("Surface")[0];
+            this.transform.position = areaBounds.center;
+            foreach (var item in FindObjectsOfType<Obstacle>())
+            {
+                if (item.enabled)
+                {
+                    ObstacleInfo obstacle = new ObstacleInfo
+                    {
+                        obstacleElement = item,
+                        StartingPos = item.transform.localPosition,
+                        StartingRot = item.transform.localRotation,
+                        obstacleType = item.isMovable ? ObstacleType.Movable : ObstacleType.Immovable
+                    };
+                    BlocksList.Add(obstacle);
+                }
+            }
+
+
+            foreach (var item in FindObjectsOfType<MAPFAgent>())
+            {
+                if (item.enabled)
+                {
+                    PlayerInfo agent = new();
+                    agent.Agent = item;
+                    if (differentiateRoles)
+                    {
+                        agent.teamId = AssignRolesRandomly(envSettings.differentiateRolesProb);
+                        agent.Agent.isActive = agent.teamId == Team.Active;
+                    }
+                    else
+                    {
+                        agent.teamId = agent.Agent.isActive ? Team.Active : Team.Passive;
+                    }
+
+                    if (agent.teamId == Team.Active)
+                    {
+                        this.SubscribeAgentToObstacles(ref agent.Agent);
+                    }
+                    agent.StartingPos = item.transform.localPosition;
+                    agent.StartingRot = item.transform.localRotation;
+                    AgentsList.Add(agent);
+
+                    m_AgentGroup.RegisterAgent(item);
+                }
+
+            }
+
+            foreach (var item in FindObjectsOfType<GoalInstance>())
+            {
+                if (item.enabled)
+                {
+                    GoalInfo goal = new GoalInfo
+                    {
+                        Goal = item,
+                        StartingPos = item.transform.localPosition,
+                        StartingRot = item.transform.localRotation,
+                        goalType = GoalType.Sphere
+                    };
+                    GoalsList.Add(goal);
+                }
+            }
+        }
+        else
+        {
+            try
+            {
+                RecoverSceneFromConfig(envSettings.baseConfigFile);
+            }
+            catch
+            {
+                Debug.Log("Something went wrong when reading your config file!");
+            }
+        }
+
+        // Sanity checks:
+        // at least one goal
+        // at least one active agent
+        area.GetComponent<Renderer>().material.color = envSettings.defaultAreaColor;
+        areaBounds = area.GetComponent<Collider>().bounds;
+        area.GetComponent<MeshCollider>().convex = true;
+
+        areaPosition = area.transform.localPosition;
+
+        if (!CheckActiveAgents())
+        {
+            throw new Exception("Should be at least one active agent");
+        }
+
+        if (GoalsList.Count == 0)
+        {
+            throw new Exception("Should be at least one goal initialised");
+        }
+    }
+
     public void ResetScene()
     {
-        //resetting the environent according to a given seed
-        var seed = envSettings.seed;
-        if (seed != -1) 
+        if (onConstruction)
         {
-            UnityEngine.Random.InitState(seed);
+            ConstructScene();
+
+            if (envSettings.saveEnvironmentConfiguration && envSettings.backupConfigFile != null)
+            {
+                this.DumpSceneToConfig(envSettings.backupConfigFile);
+            }
+
+            onConstruction = false;
         }
-
-        resetTimer = 0;
-
-        foreach (var item in BlocksList)
-        {   
-            var pos = item.StartingPos;
-            var rot = item.StartingRot;
-            item.obstacleElement.transform.SetLocalPositionAndRotation(pos, rot);
-            item.obstacleElement.Reset();
-
-        }
-        Physics.SyncTransforms();
-
-        foreach (var item in GoalsList)
+        else
         {
-            var goalSubSeed = GoalsList.IndexOf(item);
-            var pos = RandomizeGoalPosition ? GetRandomSpawnPos() : item.StartingPos;
-            var rot = item.StartingRot;
-            item.Goal.Reset();
-            item.Goal.transform.SetLocalPositionAndRotation(pos, rot);
-            //changing goalType --- for real?
-        }
-        Physics.SyncTransforms();
 
-        foreach (var item in AgentsList)
-        {
-            var agentSubSeed = AgentsList.IndexOf(item);
-            var pos = RandomizeAgentPosition ? GetRandomSpawnPos() : item.StartingPos;
-            var rot = RandomizeAgentRotation ? GetRandomSpawnRotation() : item.StartingRot;
-            item.Agent.transform.SetLocalPositionAndRotation(pos, rot);
-            item.Agent.agentRb.velocity = Vector3.zero;
-            item.Agent.agentRb.angularVelocity = Vector3.zero;
-        }
+            //resetting the environent according to a given seed
+            var seed = envSettings.seed;
+            if (seed != -1)
+            {
+                UnityEngine.Random.InitState(seed);
+            }
 
-        mazeBuilder.Clear();
+            resetTimer = 0;
+
+            foreach (var item in BlocksList)
+            {
+                var pos = item.StartingPos;
+                var rot = item.StartingRot;
+                item.obstacleElement.transform.SetLocalPositionAndRotation(pos, rot);
+                item.obstacleElement.Reset();
+
+            }
+            Physics.SyncTransforms();
+
+            foreach (var item in GoalsList)
+            {
+                var goalSubSeed = GoalsList.IndexOf(item);
+                var pos = RandomizeGoalPosition ? GetRandomSpawnPos() : item.StartingPos;
+                var rot = item.StartingRot;
+                item.Goal.Reset();
+                item.Goal.transform.SetLocalPositionAndRotation(pos, rot);
+                //changing goalType --- for real?
+            }
+            Physics.SyncTransforms();
+
+            foreach (var item in AgentsList)
+            {
+                var agentSubSeed = AgentsList.IndexOf(item);
+                var pos = RandomizeAgentPosition ? GetRandomSpawnPos() : item.StartingPos;
+                var rot = RandomizeAgentRotation ? GetRandomSpawnRotation() : item.StartingRot;
+                item.Agent.transform.SetLocalPositionAndRotation(pos, rot);
+                item.Agent.agentRb.velocity = Vector3.zero;
+                item.Agent.agentRb.angularVelocity = Vector3.zero;
+            }
+
+            mazeBuilder.Clear();
+        }
     }
 
     public void UpdateStatistics() 
