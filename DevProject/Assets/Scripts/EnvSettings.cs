@@ -9,22 +9,26 @@ namespace EnvironmentConfiguration
     public enum GameEvent
     {
         ActiveAgentHitGoal = 0,
-        AgentHitGoal = 1,
-        AgentOutOfBounds = 2,
-        AgentHitObstacle = 3,
-        ActiveAgentHitMovableObstacle = 4,
-        AgentHitAgent = 5,
-        AllGoalsCompleted = 6,
+        ActiveAgentAssisted = 1,
+        AgentHitGoal = 2,
+        AgentOutOfBounds = 3,
+        AgentHitObstacle = 4,
+        ActiveAgentHitMovableObstacle = 5,
+        AgentHitAgent = 6,
+        AllGoalsCompleted = 7,
     }
 
     /// <summary>
     /// Enum for all the roles possible for agents.
     /// Active agent can move some objects and demonatrate special behavioural types
+    /// Coopeative agent differs form the active one by the fact it cannot reach goals themselves 
+    /// but can assist doing so
     /// </summary>
     public enum Team 
     {
         Passive = 0,
         Active = 1,
+        ActiveCooperative = 2
     }
 
     /// <summary>
@@ -56,9 +60,10 @@ namespace EnvironmentConfiguration
     /// </summary>
     public class EnvSettings : MonoBehaviour {
 
+
         public List<string> tags = new() {
-            "Goal", "Obstacle", "MovableObstacle", "Agent", "ActiveAgent", "Surface", "Barrier"};
- 
+            "Goal", "Obstacle", "MovableObstacle", "Agent", "ActiveAgent", "ActiveCooperativeAgent", "Surface", "Barrier"};
+
         public string backupConfigFile = "../configs/maps/dev_map.json";
         public string baseConfigFile = "../configs/maps/dev_map2.json";
         public bool saveEnvironmentConfiguration = false;
@@ -70,11 +75,11 @@ namespace EnvironmentConfiguration
         public string demonstrationDirectory = "./Assets/Demonstrations";
         public int recordLength = 0;      
 
-        public float agentMass = 1.337f;
-        public float agentMovingSpeed = 69f;
+        public float agentMass = 10.337f;
+        public float agentMovingSpeed = 60f;
         public float agentRotationSpeed = 99.5f;
         public float agentJumpForce = 300.0f;
-        public float agentFallingForce = 400.0f;
+        public float agentFallingForce = 500.0f;
         public float differentiateRolesProb = 0.5f;
         public float obstacleAvoidanceDistance = 15.1f;
 
@@ -84,12 +89,14 @@ namespace EnvironmentConfiguration
         public float raycastSpereRadius = 0.33f;
         public int rayLength = 69;
 
+        public float globalSymmetricScale = 10f;
+
         public Color activeAgentColour = Color.red;
         public Color passiveAgentColour =  new Color(1.0f, 0.64f, 0.0f);
 
         public Color immovableObstacleColour = Color.grey; // new Color(0.9f, 0.1f, 0.52f);
         public Color movableObstacleColour = Color.magenta;  
-        public  float movableObstacleSpeed = 20f;
+        public  float movableObstacleSpeed = 60f;
 
         public Color goalColour = Color.green; // new Color(0.84f, 0.14f, 0.38f);
         public Color completedGoalColour = Color.yellow;// new Color(0.14f, 0.58f, 0.78f);
@@ -103,13 +110,14 @@ namespace EnvironmentConfiguration
         /// The higher this value, the longer training time required.
         /// </summary>
         public  float spawnAreaMarginMultiplier = 0.9f;
-        public Vector3 SpawnOverlapBox = new Vector3(10.1f, 10.1f, 10.1f);
+        public Vector2 SpawnOverlapBox = new Vector2(10.1f, 10.1f);
         public float[] rotationAngles = new[] { 0f, 360.0f };
 
         //basic rewards, more is specified in Envroller.cs
         public Dictionary<GameEvent, float> groupRewards = new Dictionary<GameEvent, float>()
         {
-            {GameEvent.AllGoalsCompleted, 1f}
+            {GameEvent.AllGoalsCompleted, 1f},
+            {GameEvent.ActiveAgentAssisted, 0.95f }
         };
 
         public Dictionary<GameEvent, float> invdividualRewards = new Dictionary<GameEvent, float>()
@@ -121,7 +129,7 @@ namespace EnvironmentConfiguration
             {GameEvent.ActiveAgentHitGoal, 1f},
         };
 
-        public Dictionary<GameEvent, float> CompetitiveRewards = new Dictionary<GameEvent, float>()
+        public Dictionary<GameEvent, float> competitiveRewards = new Dictionary<GameEvent, float>()
         {
             //TBD
         };

@@ -12,6 +12,7 @@ TagManager:
   - Scene
   - Obstacle
   - MovableObstacle
+  - ActiveCooperativeAgent
   layers:
   - Default
   - TransparentFX

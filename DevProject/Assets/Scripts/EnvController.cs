@@ -6,6 +6,12 @@ using System;
 using EnvironmentConfiguration;
 using MazeConfiguration;
 
+public enum BehaviouralPattern
+{
+    Decentralized = 0,
+    Cooperative = 1,
+    Competitive = 2 //not implemented yet
+}
 
 
 /// <summary>
@@ -88,6 +94,7 @@ public class EnvController : MonoBehaviour
     [HideInInspector]
     public EnvSettings envSettings;
 
+    private BehaviouralPattern behaviouralPattern = BehaviouralPattern.Decentralized;
     
     //to dump or load configuations using files 
     private MazeBuilder mazeBuilder = new MazeBuilder();
@@ -120,7 +127,7 @@ public class EnvController : MonoBehaviour
     public bool RandomizeGoalPosition = true;
     
     public bool differentiateRoles = false;
-    private bool onConstruction = true; 
+    private bool onConstruction = false; 
 
     private int numberActiveAgents = 0;
     private int resetTimer = 0;
@@ -147,9 +154,11 @@ public class EnvController : MonoBehaviour
         plane.transform.SetParent(this.transform);
         area = plane; 
 
-        foreach (var item in mazeBuilder.Room)
+        for (int i = 0; i < mazeBuilder.Room.Count; i++)
         {
             //shit
+            var item = mazeBuilder.Room[i];
+
             GameObject tmpObject = new();
             Obstacle.ConfigureComponents(ref tmpObject);
             tmpObject.transform.SetParent(this.transform);
@@ -165,6 +174,8 @@ public class EnvController : MonoBehaviour
                 StartingRot = tmpObject.transform.localRotation
             };
 
+            obstacle.obstacleElement.name = $"{i + 1}";
+
 
             if (Enum.TryParse(item.Type, out ObstacleType obstacleType))
                 obstacle.obstacleType = obstacleType;
@@ -173,8 +184,9 @@ public class EnvController : MonoBehaviour
             BlocksList.Add(obstacle);
         }
 
-        foreach (var item in mazeBuilder.Agents)
+        for (int i = 0; i < mazeBuilder.Agents.Count; i++)
         {
+            var item = mazeBuilder.Agents[i];
             GameObject tmpObject = new();
             MAPFAgent.ConfigureComponents(ref tmpObject);
             tmpObject.transform.SetParent(this.transform);
@@ -189,6 +201,8 @@ public class EnvController : MonoBehaviour
                 StartingRot = tmpObject.transform.localRotation
             };
 
+            agent.Agent.name = $"{i + 1}";
+
             if (Enum.TryParse(item.Type, out Team teamId))
                 agent.teamId = teamId;
 
@@ -201,14 +215,22 @@ public class EnvController : MonoBehaviour
                 agent.Agent.isActive = true;
                 this.SubscribeAgentToObstacles(ref agent.Agent);
             }
+            else if (agent.teamId == Team.ActiveCooperative)
+            {
+                agent.Agent.tag = "ActiveCooperativeAgent";
+                agent.Agent.isActive = true;
+                agent.Agent.willingToCooperate = true;
+                this.SubscribeAgentToObstacles(ref agent.Agent);
+            }
 
             m_AgentGroup.RegisterAgent(agent.Agent);
 
             AgentsList.Add(agent);
         }
 
-        foreach (var item in mazeBuilder.Goals)
+        for (int i =0; i < mazeBuilder.Goals.Count; i++)
         {
+            var item = mazeBuilder.Goals[i];
             GameObject tmpObject = new();
             GoalInstance.ConfigureComponents(ref tmpObject);
             tmpObject.transform.SetParent(this.transform);
@@ -247,9 +269,9 @@ public class EnvController : MonoBehaviour
 
             Collider collider = tmpObject.GetComponent<Collider>();
             collider.isTrigger = true;
-            tmpObject.name = "Goal";
+            tmpObject.name = $"Goal{i+1}";
             tmpObject.tag = "Goal";
-            tmpObject.transform.localScale = Vector3.one * 10f;
+            tmpObject.transform.localScale = Vector3.one * envSettings.globalSymmetricScale;
 
 
             var goal = new GoalInfo
@@ -306,7 +328,11 @@ public class EnvController : MonoBehaviour
         numberActiveAgents = 0;
         foreach (var item in AgentsList)
         {
-            numberActiveAgents += item.teamId == Team.Active ? 1 : 0;
+            numberActiveAgents += (item.teamId == Team.Active || item.teamId == Team.ActiveCooperative) ? 1 : 0;
+            if (item.teamId == Team.ActiveCooperative)
+            {
+                behaviouralPattern = BehaviouralPattern.Cooperative;
+            }
         }
 
         if (numberActiveAgents > 0)
@@ -338,6 +364,7 @@ public class EnvController : MonoBehaviour
     public void Start() 
     {      
         Clear();
+        onConstruction = true;
         envSettings = this.GetComponent<EnvSettings>();
         m_AgentGroup = new SimpleMultiAgentGroup();
         //mlagents to know the reset func
@@ -356,7 +383,7 @@ public class EnvController : MonoBehaviour
 
         foreach (var item in AgentsList)
         {
-            if (item.Agent.transform.localPosition.y < area.transform.localPosition.y + 0.5f)
+            if (item.Agent.transform.localPosition.y < area.transform.localPosition.y)
             {
                 //even one agent falls out of borders implies a reset
                 //even if the goals are completed all agents should stay alive!
@@ -367,25 +394,49 @@ public class EnvController : MonoBehaviour
         }
     }
 
-    private Vector3 GetRandomSpawnPos()
+    private Vector3 GetRandomSpawnPos(Collider collider)
     {
         Vector3 randomSpawnPos = Vector3.zero;
-        while(true)
-        {           
+        int i = 0;
+        int maxEfforts = 1000;
+        while (true)
+        {
             var randomPosX = UnityEngine.Random.Range(-areaBounds.extents.x * envSettings.spawnAreaMarginMultiplier,
                                                       areaBounds.extents.x * envSettings.spawnAreaMarginMultiplier);
 
             var randomPosZ = UnityEngine.Random.Range(-areaBounds.extents.z * envSettings.spawnAreaMarginMultiplier,
                                                       areaBounds.extents.z * envSettings.spawnAreaMarginMultiplier);
 
-            
+
             //random shift 
-            
-            randomSpawnPos = new Vector3(areaPosition.x + randomPosX, 0f, areaPosition.z + randomPosZ);
+            randomSpawnPos = new Vector3(areaPosition.x + randomPosX, areaPosition.y + 1.1f, areaPosition.z + randomPosZ);
+
+
+            var overlapBox = new Vector3(envSettings.SpawnOverlapBox.x,
+                                         0f,
+                                         envSettings.SpawnOverlapBox.y);
 
             //check on a collider type.
-            if (Physics.CheckBox(randomSpawnPos, envSettings.SpawnOverlapBox) == false)
+
+#if DEBUG
+            var tmp = Physics.OverlapBox(randomSpawnPos, overlapBox);
             {
+
+                if (tmp.Length == 1)
+                    Debug.Log(
+                    randomSpawnPos + " " + tmp[0].tag + " " + tmp[0].transform.localPosition
+                );
+            }
+#endif
+            if (Physics.CheckBox(randomSpawnPos, overlapBox) == false)
+            {
+                break;
+            }
+
+            i++;
+            if (i >= maxEfforts)
+            {
+                Debug.Log("Tried to respawns >= " + maxEfforts + " stimes. Last spawn returned");
                 break;
             }
         }
@@ -405,10 +456,14 @@ public class EnvController : MonoBehaviour
         {
             area = GameObject.FindGameObjectsWithTag("Surface")[0];
             this.transform.position = areaBounds.center;
-            foreach (var item in FindObjectsOfType<Obstacle>())
+            var foundObstacles = FindObjectsOfType<Obstacle>();
+            for (int i = 0; i < foundObstacles.Length; i++)
             {
+                var item = foundObstacles[i];
+                item.name += $"{i+1}";
                 if (item.enabled)
                 {
+                    
                     ObstacleInfo obstacle = new ObstacleInfo
                     {
                         obstacleElement = item,
@@ -420,9 +475,11 @@ public class EnvController : MonoBehaviour
                 }
             }
 
-
-            foreach (var item in FindObjectsOfType<MAPFAgent>())
+            var foundAgents = FindObjectsOfType<MAPFAgent>();
+            for (int i = 0; i < foundAgents.Length; i++)
             {
+                var item = foundAgents[i];
+                item.name += $"{i + 1}";
                 if (item.enabled)
                 {
                     PlayerInfo agent = new();
@@ -434,10 +491,22 @@ public class EnvController : MonoBehaviour
                     }
                     else
                     {
-                        agent.teamId = agent.Agent.isActive ? Team.Active : Team.Passive;
+                        if (agent.Agent.isActive && agent.Agent.willingToCooperate)
+                        {
+                            agent.teamId = Team.ActiveCooperative;
+                        }
+                        else if (agent.Agent.isActive && !agent.Agent.willingToCooperate)
+                        {
+                            agent.teamId = Team.Active;
+                        }
+                        else 
+                        {
+                            agent.teamId = Team.Passive;
+                        }
+                   
                     }
 
-                    if (agent.teamId == Team.Active)
+                    if (agent.teamId == Team.Active || agent.teamId == Team.ActiveCooperative)
                     {
                         this.SubscribeAgentToObstacles(ref agent.Agent);
                     }
@@ -450,8 +519,11 @@ public class EnvController : MonoBehaviour
 
             }
 
-            foreach (var item in FindObjectsOfType<GoalInstance>())
+            var foundGoals = FindObjectsOfType<GoalInstance>();
+            for (int i = 0; i < foundGoals.Length; i++)
             {
+                var item = foundGoals[i];
+                item.name += $"{i + 1}";
                 if (item.enabled)
                 {
                     GoalInfo goal = new GoalInfo
@@ -535,18 +607,17 @@ public class EnvController : MonoBehaviour
             foreach (var item in GoalsList)
             {
                 var goalSubSeed = GoalsList.IndexOf(item);
-                var pos = RandomizeGoalPosition ? GetRandomSpawnPos() : item.StartingPos;
+                var pos = RandomizeGoalPosition ? GetRandomSpawnPos(item.Goal.goalCl) : item.StartingPos;
                 var rot = item.StartingRot;
                 item.Goal.Reset();
                 item.Goal.transform.SetLocalPositionAndRotation(pos, rot);
                 //changing goalType --- for real?
             }
-            Physics.SyncTransforms();
 
             foreach (var item in AgentsList)
             {
                 var agentSubSeed = AgentsList.IndexOf(item);
-                var pos = RandomizeAgentPosition ? GetRandomSpawnPos() : item.StartingPos;
+                var pos = RandomizeAgentPosition ? GetRandomSpawnPos(item.Agent.agentCl) : item.StartingPos;
                 var rot = RandomizeAgentRotation ? GetRandomSpawnRotation() : item.StartingRot;
                 item.Agent.transform.SetLocalPositionAndRotation(pos, rot);
                 item.Agent.agentRb.velocity = Vector3.zero;
@@ -561,20 +632,20 @@ public class EnvController : MonoBehaviour
     {
         
         bool terminated = false;
-        
+
         int goalsCompleted = 0;
         foreach (var item in GoalsList)
         {
             var goal = item.Goal;
 
-            if (goal.isCompleted) 
+            if (goal.isCompleted)
             {
                 goalsCompleted++;
             }
             if (goal.isTouched)
             {
-                StartCoroutine(GoalScoredSwapGroundColor(envSettings.hintAreaColor, 
-                                            area.GetComponent<Renderer>(), 
+                StartCoroutine(GoalScoredSwapGroundColor(envSettings.hintAreaColor,
+                                            area.GetComponent<Renderer>(),
                                             0.5f));
             }
         }
@@ -583,17 +654,19 @@ public class EnvController : MonoBehaviour
         {
             terminated = true;
             m_AgentGroup.AddGroupReward(goalsCompleted * envSettings.invdividualRewards[GameEvent.ActiveAgentHitGoal]);
+            if (behaviouralPattern == BehaviouralPattern.Cooperative)
+            {
+                //cooperative setting should reward assistance in goal reaching
+                m_AgentGroup.AddGroupReward(envSettings.groupRewards[GameEvent.ActiveAgentAssisted]);
+            }
         }
- 
+
         if (terminated)
         {
             //Reset assets due to goal completion
+            //Debug.Log("Resetting Due to termination");
             m_AgentGroup.EndGroupEpisode();
             ResetScene();
-            foreach (var item in GoalsList)
-            {
-                item.Goal.Reset();
-            }
         }
     }
 

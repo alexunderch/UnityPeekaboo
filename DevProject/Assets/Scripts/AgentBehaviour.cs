@@ -31,10 +31,12 @@ public class MAPFAgent : Agent
 {       
     //by default, each agent is active
     [SerializeField] public bool isActive = false;
+    public bool willingToCooperate = false;
+
     [SerializeField] public bool maskActions = true;
 
     public Rigidbody agentRb;
-    private Collider agentCl;
+    [HideInInspector] public Collider agentCl;
 
     private BehaviorParameters behaviourParameters;
     private RayPerceptionSensorComponent3D raySensor;
@@ -47,7 +49,6 @@ public class MAPFAgent : Agent
     private Vector3 dirToGo;
     private Vector3 dirToRotate;
     private Vector3 jump;
-    private Vector3 dirToRestrict = Vector3.zero;
 
     //for jumps
     private bool isGrounded;
@@ -98,7 +99,6 @@ public class MAPFAgent : Agent
 
     public void Start()
     {
-        Debug.Log("Start");
      
         var collider = this.GetComponent<CapsuleCollider>();
         collider.providesContacts = true;
@@ -110,8 +110,12 @@ public class MAPFAgent : Agent
 
         this.gameObject.tag = "Agent";
         if (isActive)
+        {
             this.gameObject.tag = "ActiveAgent";
-
+            if (willingToCooperate)
+                this.gameObject.tag = "ActiveCooperativeAgent";
+        }
+            
     }
 
     
@@ -128,19 +132,20 @@ public class MAPFAgent : Agent
         Mesh mesh = Instantiate(obj.GetComponent<MeshFilter>().mesh);
         this.GetComponent<MeshFilter>().sharedMesh = mesh;
         Destroy(obj);
-        this.transform.localScale = Vector3.one * 10f;
+        this.transform.localScale = Vector3.one * envSettings.globalSymmetricScale;
 
         m_ResetParams = Academy.Instance.EnvironmentParameters;
 
         agentRb = this.GetComponent<Rigidbody>();
         agentRb.useGravity = true;
         agentRb.mass = envSettings.agentMass;
-        agentRb.constraints = RigidbodyConstraints.FreezeRotationX;
-        agentRb.constraints = RigidbodyConstraints.FreezeRotationZ;
-
+        agentRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        
+        //agentRb.constraints = RigidbodyConstraints.FreezePositionY;
 
         agentCl = this.GetComponent<Collider>();
         agentCl.providesContacts = true;
+
         //vision is done via raycasting
         raySensor = this.GetComponent<RayPerceptionSensorComponent3D>();
         raySensor.RaysPerDirection = envSettings.raysPerDirection;
@@ -169,6 +174,8 @@ public class MAPFAgent : Agent
         if (!isActive)
         {
             agentColour = envSettings.passiveAgentColour;
+            //passive agent cannot demonstrate cooperative behaviour by itself
+            willingToCooperate = false;
         }
 
         this.GetComponent<Renderer>().material.color = agentColour;
@@ -179,7 +186,10 @@ public class MAPFAgent : Agent
         if (other.gameObject.CompareTag("Goal"))
         {
             //no need to handle role models here explicitly
-            AddReward(envSettings.invdividualRewards[GameEvent.ActiveAgentHitGoal]);
+            if (!willingToCooperate)
+            {
+                AddReward(envSettings.invdividualRewards[GameEvent.ActiveAgentHitGoal]);
+            }
             envController.UpdateStatistics();
         }
     }
@@ -196,7 +206,7 @@ public class MAPFAgent : Agent
            AddReward(envSettings.invdividualRewards[GameEvent.AgentOutOfBounds]);
         }
 
-        if (other.gameObject.CompareTag("ActiveAgent"))
+        if (other.gameObject.CompareTag("ActiveAgent") || other.gameObject.CompareTag("ActiveCooperativeAgent"))
         {
             AddReward(envSettings.invdividualRewards[GameEvent.AgentHitAgent]);
         }
@@ -215,6 +225,12 @@ public class MAPFAgent : Agent
             AddReward(reward);
         }
 
+        if (other.gameObject.CompareTag("MovableObstacle") && moveRequested)
+        {
+            AddReward(envSettings.invdividualRewards[GameEvent.ActiveAgentHitMovableObstacle]);
+            OnMoveRequested?.Invoke(this, new MoveRequestEventArgs { ObjectID = other.gameObject.name });
+        }
+
     }
 
     public void OnCollisionStay(Collision other)
@@ -223,12 +239,6 @@ public class MAPFAgent : Agent
         if (other.gameObject.CompareTag("Surface") || other.gameObject.CompareTag("Obstacle")) 
         {
             isGrounded = true;
-        }
-
-        if (other.gameObject.CompareTag("MovableObstacle") && moveRequested)
-        {
-            AddReward(envSettings.invdividualRewards[GameEvent.ActiveAgentHitMovableObstacle]);
-            OnMoveRequested?.Invoke(this, new MoveRequestEventArgs {ObjectID = other.gameObject.name});
         }
 
         if (this.gameObject.CompareTag("Agent") && (other.gameObject.CompareTag("Obstacle") || other.gameObject.CompareTag("MovableObstacle")))
@@ -240,7 +250,7 @@ public class MAPFAgent : Agent
 
     public void OnCollisionExit(Collision other)
     {
-        // Finishing move action after a collision has been exited
+        //Finishing move action after a collision has been done
         if (other.gameObject.CompareTag("MovableObstacle") && moveRequested)
             moveRequested = false;
     }
@@ -261,6 +271,7 @@ public class MAPFAgent : Agent
         int dirToGoAction = actions[0];
         int dirToRotateAction = actions[1];
         int jumpAction = actions[2];
+
         int useAction = actions[3];
 
 
@@ -303,6 +314,8 @@ public class MAPFAgent : Agent
             this.transform.Rotate(dirToRotate.normalized * Time.deltaTime * envSettings.agentRotationSpeed);
         }
 
+        agentRb.velocity = Vector3.zero;
+
         if (dirToGoAction > 0)
         {
             //TODO: check once more
@@ -336,8 +349,8 @@ public class MAPFAgent : Agent
     /// <param name="actionBuffers"></param>
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        //reward per step;
-        AddReward(-1f/(envController.MaxEnvironmentSteps+1f));
+        //reward per step -- useless;
+        //AddReward(-1f/(envController.MaxEnvironmentSteps+1f));
         MoveAgentDiscrete(actionBuffers.DiscreteActions);
     }
 
@@ -355,6 +368,7 @@ public class MAPFAgent : Agent
 
             // Prevents the agent from the `use action` if it is not active
             actionMask.SetActionEnabled(3, 1, isActive);
+            // Prevents the agent from the `jump action` if it is not active
             actionMask.SetActionEnabled(2, 1, isActive);
 
             //// Prevents the agent from moving through the walls

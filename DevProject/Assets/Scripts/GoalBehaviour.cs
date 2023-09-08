@@ -10,6 +10,7 @@ public class GoalInstance : MonoBehaviour
 {
     private EnvSettings envSettings;
     private EnvController envController;
+    [HideInInspector] public Collider goalCl;
     //via method it does not work, why?
     [HideInInspector] public bool isCompleted = false;
     [HideInInspector] public bool isTouched = false;
@@ -53,6 +54,8 @@ public class GoalInstance : MonoBehaviour
         envController = GetComponentInParent<EnvController>();
         envSettings = GetComponentInParent<EnvSettings>();
 
+        goalCl = this.GetComponent<Collider>();
+
         var vectorSensor = this.GetComponent<VectorSensorComponent>();
         vectorSensor.ObservationType = ObservationType.GoalSignal;
         vectorSensor.ObservationSize = 4;
@@ -70,9 +73,9 @@ public class GoalInstance : MonoBehaviour
     {
         if (other.gameObject.CompareTag("ActiveAgent") || other.gameObject.CompareTag("Agent"))
         {
-            isTouched = true;
             GetComponent<Renderer>().material.color = envSettings.completedGoalColour;
             isCompleted = true;
         }
+        isTouched = true;
     }
 }

@@ -465,143 +465,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &78666893
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 78666897}
-  - component: {fileID: 78666896}
-  - component: {fileID: 78666895}
-  - component: {fileID: 78666894}
-  - component: {fileID: 78666898}
-  - component: {fileID: 78666899}
-  m_Layer: 0
-  m_Name: Goal
-  m_TagString: Goal
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!135 &78666894
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 78666893}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!23 &78666895
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 78666893}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &78666896
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 78666893}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &78666897
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 78666893}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -68, y: 5, z: 71.9}
-  m_LocalScale: {x: 10, y: 10, z: 10}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 227215282}
-  m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &78666898
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 78666893}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96ca745005b085293b1c7bedd42b1560, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isCompleted: 0
-  isTouched: 0
---- !u!114 &78666899
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 78666893}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38b7cc1f5819445aa85e9a9b054552dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SensorName: VectorSensor
-  m_ObservationSize: 3
-  m_ObservationType: 1
-  m_ObservationStacks: 1
 --- !u!1 &116282984
 GameObject:
   m_ObjectHideFlags: 0
@@ -850,6 +713,7 @@ MonoBehaviour:
   - Surface
   - Barrier
   - MovableObstacle
+  - ActiveCooperativeAgent
   m_RaysPerDirection: 4
   m_MaxRayDegrees: 45
   m_SphereCastRadius: 0.33
@@ -857,7 +721,7 @@ MonoBehaviour:
   m_RayLayerMask:
     serializedVersion: 2
     m_Bits: 4294967291
-  m_ObservationStacks: 1
+  m_ObservationStacks: 4
   m_AlternatingRayOrder: 0
   rayHitColor: {r: 0.764151, g: 0.75978416, b: 0.2198736, a: 1}
   rayMissColor: {r: 0.7169812, g: 0.091313645, b: 0.70937794, a: 1}
@@ -894,8 +758,10 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
   isActive: 0
+  willingToCooperate: 0
   maskActions: 1
   agentRb: {fileID: 148865237}
+  agentCl: {fileID: 0}
 --- !u!114 &148865236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -952,7 +818,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 2
-  m_Constraints: 112
+  m_Constraints: 0
   m_CollisionDetection: 2
 --- !u!136 &148865238
 CapsuleCollider:
@@ -1424,7 +1290,6 @@ Transform:
   - {fileID: 843556860}
   - {fileID: 71053491}
   - {fileID: 1680418834}
-  - {fileID: 78666897}
   - {fileID: 1995472358}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -1442,29 +1307,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   envSettings: {fileID: 0}
-  AgentsList:
-  - StartingPos: {x: 0, y: 0, z: 0}
-    StartingRot: {x: 0, y: 0, z: 0, w: 0}
-    Agent: {fileID: 1608441036}
-    teamId: 0
-  - StartingPos: {x: 0, y: 0, z: 0}
-    StartingRot: {x: 0, y: 0, z: 0, w: 0}
-    Agent: {fileID: 0}
-    teamId: 0
-  - StartingPos: {x: 0, y: 0, z: 0}
-    StartingRot: {x: 0, y: 0, z: 0, w: 0}
-    Agent: {fileID: 0}
-    teamId: 0
+  AgentsList: []
   BlocksList: []
-  GoalsList:
-  - StartingPos: {x: 0, y: 0, z: 0}
-    StartingRot: {x: 0, y: 0, z: 0, w: 0}
-    Goal: {fileID: 78666898}
-    goalType: 1
-  - StartingPos: {x: 0, y: 0, z: 0}
-    StartingRot: {x: 0, y: 0, z: 0, w: 0}
-    Goal: {fileID: 1995472360}
-    goalType: 1
+  GoalsList: []
   RandomizeAgentPosition: 1
   RandomizeAgentRotation: 1
   RandomizeGoalPosition: 1
@@ -1508,34 +1353,35 @@ MonoBehaviour:
   - Barrier
   backupConfigFile: ../configs/maps/dev_map2.json
   baseConfigFile: ../configs/maps/dev_map2.json
-  saveEnvironmentConfiguration: 1
+  saveEnvironmentConfiguration: 0
   loadEnvironmentConfiguration: 0
   seed: -1
   recordDemonstrations: 0
   demonstrationDirectory: ./Assets/Demonstrations
   recordLength: 0
-  agentMass: 1.337
+  agentMass: 100.337
   agentMovingSpeed: 69
   agentRotationSpeed: 99.5
   agentJumpForce: 300
-  agentFallingForce: 400
+  agentFallingForce: 1000
   differentiateRolesProb: 0.5
   obstacleAvoidanceDistance: 15.1
   raysPerDirection: 4
   maxRayDegrees: 45
   raycastSpereRadius: 0.33
   rayLength: 69
+  globalSymmetricScale: 10
   activeAgentColour: {r: 1, g: 0, b: 0, a: 1}
   passiveAgentColour: {r: 1, g: 0.64, b: 0, a: 1}
   immovableObstacleColour: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   movableObstacleColour: {r: 1, g: 0, b: 1, a: 1}
-  movableObstacleSpeed: 20
+  movableObstacleSpeed: 60
   goalColour: {r: 0, g: 1, b: 0, a: 1}
   completedGoalColour: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   defaultAreaColor: {r: 0.83, g: 0.72, b: 0.69, a: 1}
   hintAreaColor: {r: 0.5, g: 0.6, b: 0.4, a: 1}
   spawnAreaMarginMultiplier: 0.9
-  SpawnOverlapBox: {x: 10.1, y: 10.1, z: 10.1}
+  SpawnOverlapBox: {x: 10.1, y: 10.1}
   rotationAngles:
   - 0
   - 360
@@ -2076,7 +1922,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &581794240
@@ -2160,7 +2006,7 @@ BoxCollider:
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
-  m_ProvidesContacts: 1
+  m_ProvidesContacts: 0
   m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 10, y: 2.220446e-16, z: 10}
@@ -3013,7 +2859,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -78.899994, y: 155.59999, z: 2.6}
+  m_LocalPosition: {x: 0, y: 160.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3744,7 +3590,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BrainParameters:
     VectorObservationSize: 0
-    NumStackedVectorObservations: 1
+    NumStackedVectorObservations: 5
     m_ActionSpec:
       m_NumContinuousActions: 0
       BranchSizes: 05000000030000000200000002000000
@@ -3786,7 +3632,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 2
-  m_Constraints: 112
+  m_Constraints: 80
   m_CollisionDetection: 2
 --- !u!136 &1608441031
 CapsuleCollider:
@@ -3893,8 +3739,10 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
   isActive: 1
+  willingToCooperate: 0
   maskActions: 1
   agentRb: {fileID: 1608441030}
+  agentCl: {fileID: 0}
 --- !u!114 &1608441037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4743,6 +4591,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96ca745005b085293b1c7bedd42b1560, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  goalCl: {fileID: 0}
   isCompleted: 0
   isTouched: 0
 --- !u!135 &1995472361

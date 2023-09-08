@@ -68,7 +68,6 @@ public class Obstacle : MonoBehaviour
         allowedToMove = false;
         obstacleRigidbody.isKinematic = true;
         obstacleRigidbody.useGravity = true;
-        obstacleRigidbody.constraints = RigidbodyConstraints.FreezePositionY;
     }
 
     public void Start()
@@ -92,6 +91,7 @@ public class Obstacle : MonoBehaviour
         if (isMovable)
         {   
             this.gameObject.tag = "MovableObstacle";
+            obstacleRigidbody.constraints = RigidbodyConstraints.FreezePositionY;
             GetComponent<Renderer>().material.color = envSettings.movableObstacleColour;
         }
         else
@@ -99,8 +99,8 @@ public class Obstacle : MonoBehaviour
             //bigger mass to restrict any possible collisions
             obstacleRigidbody.mass *= 1000f;
             obstacleRigidbody.drag = 10;
-            obstacleRigidbody.constraints = RigidbodyConstraints.FreezePosition;
-            obstacleRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+            obstacleRigidbody.constraints = RigidbodyConstraints.FreezePosition 
+                                            | RigidbodyConstraints.FreezeRotation;
             GetComponent<Renderer>().material.color = envSettings.immovableObstacleColour;
         }
 
@@ -129,16 +129,19 @@ public class Obstacle : MonoBehaviour
     /// <param name="other"></param>
     public void OnCollisionStay(Collision other)
     {
+        bool isValidAgent = other.gameObject.CompareTag("ActiveAgent") || other.gameObject.CompareTag("ActiveCooperativeAgent");
         if (isMovable && allowedToMove)
         {   
-            if (other.gameObject.CompareTag("ActiveAgent"))        
+            if (isValidAgent)        
             {
                 var dirToMove = other.rigidbody.velocity.normalized;
                 transform.Translate(dirToMove * Time.deltaTime * envSettings.movableObstacleSpeed);
+                Debug.Log("Moved");
+                
             }
             allowedToMove = false; //disallow to be moved after one execution   
         }
-        if (isMovable && other.gameObject.CompareTag("Agent"))
+        if (isMovable && isValidAgent)
         {
             Reset();
         }

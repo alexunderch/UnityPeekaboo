@@ -172,8 +172,10 @@ Essentially, we have the following observation/action spaces:
         * An agent hit a boundary = $-1$ to the agent
         * An active agent (i.e. can move walls) hit a goal = $+1$ to the agent
         * As the goal of an agent is to complete any given task as soon as possible, every agent is fined per step as $-\frac{1}{1+\text{ episode length}}$  
-    - Cooperative rewards
+    - Decentralised rewards
         * All goals were completed = $+1$ to *each* agent.
+    - Cooperative rewards
+        * Active agent (could not reacch goals) assisted the passive agent =  $+0.99$ to *each* agent
     - Competitive rewards (**not done yet**)
         * Agent of a team "X" achived the goal (some goals) faster than the other team...
 
