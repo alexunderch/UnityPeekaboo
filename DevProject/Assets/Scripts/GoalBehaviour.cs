@@ -58,7 +58,7 @@ public class GoalInstance : MonoBehaviour
 
         var vectorSensor = this.GetComponent<VectorSensorComponent>();
         vectorSensor.ObservationType = ObservationType.GoalSignal;
-        vectorSensor.ObservationSize = 4;
+        vectorSensor.ObservationSize = 1;
 
         Reset();
     }

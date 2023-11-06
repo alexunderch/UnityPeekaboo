@@ -1,0 +1,30 @@
+{
+    "MAPFAgentBehaviour": {
+        "elo": 100.0,
+        "checkpoints": [
+            {
+                "steps": 17534,
+                "file_path": "results\\ppo\\MAPFAgentBehaviour\\MAPFAgentBehaviour-17534.onnx",
+                "reward": -0.3866729736328125,
+                "creation_time": 1695324213.3066926,
+                "auxillary_file_paths": [
+                    "results\\ppo\\MAPFAgentBehaviour\\MAPFAgentBehaviour-17534.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 17534,
+            "file_path": "results\\ppo\\MAPFAgentBehaviour.onnx",
+            "reward": -0.3866729736328125,
+            "creation_time": 1695324213.3066926,
+            "auxillary_file_paths": [
+                "results\\ppo\\MAPFAgentBehaviour\\MAPFAgentBehaviour-17534.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.31.0.dev0",
+        "torch_version": "1.10.2+cpu"
+    }
+}

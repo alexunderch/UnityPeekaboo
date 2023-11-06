@@ -1,3 +1,5 @@
+//#define DEBUGGWP
+
 using UnityEngine;
 using EnvironmentConfiguration;
 using Unity.MLAgents;
@@ -5,8 +7,10 @@ using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Policies;
 using Unity.MLAgents.Demonstrations;
+using System.Collections;
+using Unity.MLAgents.Sensors.Reflection;
+using System.Collections.Generic;
 using System;
-using Unity.VisualScripting;
 
 public enum MoveActions 
 {
@@ -31,7 +35,10 @@ public class MAPFAgent : Agent
 {       
     //by default, each agent is active
     [SerializeField] public bool isActive = false;
-    public bool willingToCooperate = false;
+    //a cooperative agent is not supposed to reach goals but
+    //to assist in reaching ones finding them or heliping a passive agents
+    //with moving around obstacles
+    [SerializeField] public bool willingToCooperate = false;
 
     [SerializeField] public bool maskActions = true;
 
@@ -40,25 +47,35 @@ public class MAPFAgent : Agent
 
     private BehaviorParameters behaviourParameters;
     private RayPerceptionSensorComponent3D raySensor;
+    private VectorSensorComponent goalSensor;
     private DemonstrationRecorder demonstrationRecorder;
 
     private EnvSettings envSettings;
     private EnvController envController;
-    EnvironmentParameters m_ResetParams;
 
     private Vector3 dirToGo;
     private Vector3 dirToRotate;
     private Vector3 jump;
 
+    private int energy;
+
+    private float[] prevDist;
+
+
     //for jumps
     private bool isGrounded;
+    
     private int collisionCounter = 0;
-
-    public bool IsActive {get; set;}
 
     [HideInInspector]
     public int CollisionCounter {get; private set;}
+    public int Energy { get { return energy;  } }
 
+
+
+    /// <summary>
+    /// Communticaion protocol to handle movable obstacles
+    /// </summary>
     public class MoveRequestEventArgs : System.EventArgs
     {
         public string ObjectID { get; set; }
@@ -106,8 +123,8 @@ public class MAPFAgent : Agent
         this.gameObject.name = "MAPFAgent";
         this.gameObject.SetActive(true);
 
-        MaxStep = envController.MaxEnvironmentSteps;
-
+        MaxStep = energy = envController.MaxEnvironmentSteps;
+        
         this.gameObject.tag = "Agent";
         if (isActive)
         {
@@ -118,7 +135,6 @@ public class MAPFAgent : Agent
             
     }
 
-    
     /// <summary>
     /// Initialising agent here: rigidbody, colours, materials... 
     /// </summary>
@@ -127,24 +143,22 @@ public class MAPFAgent : Agent
         envController = this.GetComponentInParent<EnvController>();
         envSettings = GetComponentInParent<EnvSettings>();
 
-
         GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         Mesh mesh = Instantiate(obj.GetComponent<MeshFilter>().mesh);
         this.GetComponent<MeshFilter>().sharedMesh = mesh;
         Destroy(obj);
+        
         this.transform.localScale = Vector3.one * envSettings.globalSymmetricScale;
-
-        m_ResetParams = Academy.Instance.EnvironmentParameters;
 
         agentRb = this.GetComponent<Rigidbody>();
         agentRb.useGravity = true;
         agentRb.mass = envSettings.agentMass;
         agentRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-        
-        //agentRb.constraints = RigidbodyConstraints.FreezePositionY;
-
+       
         agentCl = this.GetComponent<Collider>();
         agentCl.providesContacts = true;
+
+        //goalSensor = this.GetComponent<VectorSensorComponent>();
 
         //vision is done via raycasting
         raySensor = this.GetComponent<RayPerceptionSensorComponent3D>();
@@ -155,7 +169,7 @@ public class MAPFAgent : Agent
         raySensor.DetectableTags = envSettings.tags;
 
         behaviourParameters = this.GetComponent<BehaviorParameters>();
-        behaviourParameters.TeamId = 0;
+        //behaviourParameters.TeamId = 0;
         behaviourParameters.BehaviorName = "MAPFAgentBehaviour";
         behaviourParameters.BrainParameters.VectorObservationSize = 0; //get it done automatically
         behaviourParameters.BrainParameters.ActionSpec = new ActionSpec( 0, new[] { 5, 3, 2, 2 } );
@@ -215,12 +229,12 @@ public class MAPFAgent : Agent
         {
             //to prevent an agent incapable to move obstacles bump into them on purpose
             collisionCounter++;
-            AddReward(-(float)collisionCounter/1000f);
+            AddReward((float)collisionCounter/100f);
 
             var reward = envSettings.invdividualRewards[GameEvent.AgentHitObstacle];
 
             if (!isActive) {
-                reward *= 5f;
+                reward *= -2f;
             }
             AddReward(reward);
         }
@@ -241,7 +255,8 @@ public class MAPFAgent : Agent
             isGrounded = true;
         }
 
-        if (this.gameObject.CompareTag("Agent") && (other.gameObject.CompareTag("Obstacle") || other.gameObject.CompareTag("MovableObstacle")))
+        if ((this.gameObject.CompareTag("ActiveAgent") || this.gameObject.CompareTag("ActiveCooperativeAgent")) && 
+            (other.gameObject.CompareTag("Obstacle") || other.gameObject.CompareTag("MovableObstacle")))
         {
             AddReward(envSettings.invdividualRewards[GameEvent.AgentHitObstacle]);
         }
@@ -286,10 +301,10 @@ public class MAPFAgent : Agent
                 break;
             case (int) MoveActions.Left:
                 //left
-                dirToGo = transform.right * (-0.75f);
+                dirToGo = transform.right * (-1f);
                 break;
             case (int) MoveActions.Right: 
-                dirToGo = transform.right * 0.75f;
+                dirToGo = transform.right * 1f;
                 break;
             default:
                 dirToGo =  Vector3.zero;
@@ -311,16 +326,36 @@ public class MAPFAgent : Agent
 
         if (dirToRotateAction> 0)
         {
-            this.transform.Rotate(dirToRotate.normalized * Time.deltaTime * envSettings.agentRotationSpeed);
+            if (this.envSettings.useGridMovement)
+            {
+                transform.localRotation = Quaternion.Euler(Vector3.Scale(new Vector3(0f, 90f, 0f), dirToRotate));
+            }
+            else
+            {
+                this.transform.Rotate(dirToRotate.normalized * Time.deltaTime * envSettings.agentRotationSpeed);
+            }
         }
 
         agentRb.velocity = Vector3.zero;
 
         if (dirToGoAction > 0)
         {
-            //TODO: check once more
-            Vector3 moveAction = dirToGo * Time.deltaTime * envSettings.agentMovingSpeed;
-            this.transform.Translate(moveAction);
+            if (this.envSettings.useGridMovement)
+            {
+                var newPosInd = this.envController.areaRectangularGrid.GetNeighbours(
+                    this.envController.areaRectangularGrid.GetCellByCoords(transform.localPosition)
+                    )[dirToGoAction];
+                this.transform.localPosition = Vector3.Lerp(transform.localPosition,
+                                                    this.envController.areaRectangularGrid.GetCoords(newPosInd),
+                                                    Time.deltaTime * envSettings.agentMovingSpeed);
+            }
+            else 
+            {
+                this.transform.localPosition = Vector3.Lerp(transform.localPosition,
+                                            transform.localPosition + dirToGo,
+                                            Time.deltaTime * envSettings.agentMovingSpeed);
+            }
+
         }
            
         if ((jumpAction > 0) && isGrounded)
@@ -343,15 +378,36 @@ public class MAPFAgent : Agent
 
     }
 
+    public void FixedUpdate()
+    {
+        --energy;
+    }
+
     /// <summary>
     /// Action Distribution is here
     /// </summary>
     /// <param name="actionBuffers"></param>
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        //reward per step -- useless;
-        //AddReward(-1f/(envController.MaxEnvironmentSteps+1f));
+        
         MoveAgentDiscrete(actionBuffers.DiscreteActions);
+
+        try
+        {
+            var delta = envController.UpdateThresholds(this.name);
+            for (int i = 0; i < envController.DistanceThr.Count; i++)
+            {
+                if (delta[i] > 0 && delta[i] < Mathf.Infinity)
+                {
+                    var reward = Mathf.Clamp(delta[i] / ((envSettings.agentMovingSpeed + 1f) * Time.deltaTime), 0f, 0.25f);
+                    //the active cooperative has to be not targetting goals
+                    AddReward(reward);
+                    Debug.Log("Thr updated for " + this.name + " with " + reward);
+                }
+            }
+        }
+        catch (KeyNotFoundException) { }
+        catch (IndexOutOfRangeException) { }
     }
 
     /// <summary>
@@ -374,14 +430,14 @@ public class MAPFAgent : Agent
             //// Prevents the agent from moving through the walls
             //// TODO: fix rotations
             static bool enableAction(RaycastHit raycastHit, bool activeFlag) => raycastHit.collider.CompareTag("MovableObstacle") && activeFlag;
-
+            Physics.SyncTransforms();
             RaycastHit hit; 
             if (Physics.Raycast(this.transform.position, 
                 transform.TransformDirection(this.transform.forward), 
                 out hit, 
                 envSettings.obstacleAvoidanceDistance))
             {
-                actionMask.SetActionEnabled(0, (int)MoveActions.Forward, enableAction(hit, isActive));
+                actionMask.SetActionEnabled(0, (int)MoveActions.Forward, enableAction(hit, isActive) && moveRequested);
             }
 
             if (Physics.Raycast(this.transform.position,
@@ -389,7 +445,7 @@ public class MAPFAgent : Agent
                 out hit, 
                 envSettings.obstacleAvoidanceDistance))
             {
-                actionMask.SetActionEnabled(0, (int)MoveActions.Backward, enableAction(hit, isActive));
+                actionMask.SetActionEnabled(0, (int)MoveActions.Backward, enableAction(hit, isActive) && moveRequested);
             }
 
             if (Physics.Raycast(this.transform.position,
@@ -397,7 +453,7 @@ public class MAPFAgent : Agent
                 out hit, 
                 envSettings.obstacleAvoidanceDistance))
             {
-                actionMask.SetActionEnabled(0, (int)MoveActions.Right, enableAction(hit, isActive));
+                actionMask.SetActionEnabled(0, (int)MoveActions.Right, enableAction(hit, isActive) && moveRequested);
             }
 
             if (Physics.Raycast(this.transform.position, 
@@ -405,7 +461,7 @@ public class MAPFAgent : Agent
                 out hit, 
                 envSettings.obstacleAvoidanceDistance))
             {
-                actionMask.SetActionEnabled(0, (int)MoveActions.Left, enableAction(hit, isActive));
+                actionMask.SetActionEnabled(0, (int)MoveActions.Left, enableAction(hit, isActive) && moveRequested);
             }
 
             agentRb.velocity = Vector3.zero;
@@ -413,13 +469,27 @@ public class MAPFAgent : Agent
         }
     }
 
-
     /// <summary>
     /// Human controller, a Unity internal method
     /// </summary>
     /// <param name="actionsOut"></param>
     public override void Heuristic(in ActionBuffers actionsOut)
     {
+
+#if UNITY_EDITOR && DEBUGGWP
+        var raycasts = raySensor.RaySensor.RayPerceptionOutput.RayOutputs;
+        if (raycasts != null)
+        {
+            foreach (var item in raycasts)
+            {
+                Debug.Log(
+                item.HitGameObject
+                 );
+            }
+
+        }
+
+#endif
 
         int moveAction = 0;
         int rotateAction = 1;

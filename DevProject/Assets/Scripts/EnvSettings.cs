@@ -76,12 +76,12 @@ namespace EnvironmentConfiguration
         public int recordLength = 0;      
 
         public float agentMass = 10.337f;
-        public float agentMovingSpeed = 60f;
+        public float agentMovingSpeed = 79f;
         public float agentRotationSpeed = 99.5f;
         public float agentJumpForce = 300.0f;
         public float agentFallingForce = 500.0f;
         public float differentiateRolesProb = 0.5f;
-        public float obstacleAvoidanceDistance = 15.1f;
+        public float obstacleAvoidanceDistance = 18.1f;
 
         //necessary raycast vision arguments
         public int raysPerDirection = 4;
@@ -91,12 +91,12 @@ namespace EnvironmentConfiguration
 
         public float globalSymmetricScale = 10f;
 
-        public Color activeAgentColour = Color.red;
-        public Color passiveAgentColour =  new Color(1.0f, 0.64f, 0.0f);
+        public Color activeAgentColour = new Color32(255, 215, 0, 255);
+        public Color passiveAgentColour =  new Color32(192, 192, 192, 255);
 
-        public Color immovableObstacleColour = Color.grey; // new Color(0.9f, 0.1f, 0.52f);
+        public Color immovableObstacleColour = new Color32(90, 90, 90, 255); // new Color(0.9f, 0.1f, 0.52f);
         public Color movableObstacleColour = Color.magenta;  
-        public  float movableObstacleSpeed = 60f;
+        public  float movableObstacleSpeed = 100f;
 
         public Color goalColour = Color.green; // new Color(0.84f, 0.14f, 0.38f);
         public Color completedGoalColour = Color.yellow;// new Color(0.14f, 0.58f, 0.78f);
@@ -113,11 +113,16 @@ namespace EnvironmentConfiguration
         public Vector2 SpawnOverlapBox = new Vector2(10.1f, 10.1f);
         public float[] rotationAngles = new[] { 0f, 360.0f };
 
+        //grid-related parameters
+        public bool useGridMovement = true;
+        public Vector3 gridCellSize = new Vector3(40f, 0f, 40f);
+        public Vector3 gridCellGap = Vector3.zero;
+
         //basic rewards, more is specified in Envroller.cs
         public Dictionary<GameEvent, float> groupRewards = new Dictionary<GameEvent, float>()
         {
             {GameEvent.AllGoalsCompleted, 1f},
-            {GameEvent.ActiveAgentAssisted, 0.95f }
+            {GameEvent.ActiveAgentAssisted, 1f}
         };
 
         public Dictionary<GameEvent, float> invdividualRewards = new Dictionary<GameEvent, float>()

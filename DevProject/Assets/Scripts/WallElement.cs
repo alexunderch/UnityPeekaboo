@@ -1,6 +1,6 @@
 using EnvironmentConfiguration;
 using UnityEngine;
-using System;
+using System.Collections;
 using Unity.VisualScripting;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -31,7 +31,6 @@ public class Obstacle : MonoBehaviour
 
     public float ObstacleMovingSpeed { get; private set; }
 
-
     /// <summary>
     /// The method carries all visual components to be added via code
     /// to recover the object from a config
@@ -53,13 +52,11 @@ public class Obstacle : MonoBehaviour
         {
             this.gameObject.name = "Obstacle";
             this.gameObject.tag = "Obstacle";
-
         }
         else
         {
             this.gameObject.name = "Secret Wall";
             this.gameObject.tag = "MovableObstacle";
-
         }
 
     }
@@ -77,6 +74,7 @@ public class Obstacle : MonoBehaviour
         meshCollider.convex = true;
         meshCollider.providesContacts = true;
 
+        //for a while it is only a cube
         meshCollider.sharedMesh = Resources.GetBuiltinResource<Mesh>("Cube.fbx");
         this.GetComponent<MeshFilter>().sharedMesh = meshCollider.sharedMesh;
 
@@ -97,7 +95,7 @@ public class Obstacle : MonoBehaviour
         else
         {
             //bigger mass to restrict any possible collisions
-            obstacleRigidbody.mass *= 1000f;
+            obstacleRigidbody.mass *= 100f;
             obstacleRigidbody.drag = 10;
             obstacleRigidbody.constraints = RigidbodyConstraints.FreezePosition 
                                             | RigidbodyConstraints.FreezeRotation;
@@ -107,7 +105,7 @@ public class Obstacle : MonoBehaviour
         if (isWalkable)
         {
             //to walk upon smth the object should have more friction
-            obstacleRigidbody.drag *= 4;
+            obstacleRigidbody.drag *= 5;
         }
     }
 
@@ -134,10 +132,10 @@ public class Obstacle : MonoBehaviour
         {   
             if (isValidAgent)        
             {
-                var dirToMove = other.rigidbody.velocity.normalized;
-                transform.Translate(dirToMove * Time.deltaTime * envSettings.movableObstacleSpeed);
-                Debug.Log("Moved");
-                
+                var dirToMove = other.rigidbody.velocity;
+                dirToMove.y = 0f;
+                //transform.Translate(dirToMove * Time.deltaTime * envSettings.movableObstacleSpeed);
+                StartCoroutine(SmoothMove(dirToMove.normalized, envSettings.movableObstacleSpeed));
             }
             allowedToMove = false; //disallow to be moved after one execution   
         }
@@ -146,5 +144,22 @@ public class Obstacle : MonoBehaviour
             Reset();
         }
     }
+
+    IEnumerator SmoothMove(Vector3 direction, float speed)
+    {
+        float startime = Time.time;
+        Vector3 start_pos = transform.localPosition;
+        Vector3 end_pos = transform.localPosition + direction;
+
+        while (start_pos != end_pos && ((Time.time - startime) * speed) < 1f)
+        {
+            float move = Mathf.Lerp(0, 1f, (Time.time - startime) * speed);
+
+            transform.localPosition += direction * move;
+
+            yield return null;
+        }
+    }
+
 
 }

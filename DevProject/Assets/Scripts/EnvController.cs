@@ -1,3 +1,4 @@
+//#define DEBUGGWP
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,7 @@ using Unity.MLAgents;
 using System;
 using EnvironmentConfiguration;
 using MazeConfiguration;
+using System.Linq;
 
 public enum BehaviouralPattern
 {
@@ -111,13 +113,19 @@ public class EnvController : MonoBehaviour
     [HideInInspector]
     public Vector3 AreaPosition {get; private set;}
 
+    [HideInInspector]
+    public RectangularGrid areaRectangularGrid;
 
     //List of Agents On Platform
     public List<PlayerInfo> AgentsList = new List<PlayerInfo>();
+    public List<string> AgentsNames = new();
+
     //List of Blocks On Platform
     public List<ObstacleInfo> BlocksList = new List<ObstacleInfo>();
     //List of Possible goals to achieve
     public List<GoalInfo> GoalsList = new List<GoalInfo>();
+
+    public Dictionary<string, float[]> DistanceThr  = new();
 
     private SimpleMultiAgentGroup m_AgentGroup;
 
@@ -145,6 +153,7 @@ public class EnvController : MonoBehaviour
 
         //creating a battleground
         GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+     
         plane.transform.localScale = new Vector3(mapSize.x, 1, mapSize.y);
         plane.tag = "Surface";
         plane.name = "RPlane";
@@ -226,6 +235,7 @@ public class EnvController : MonoBehaviour
             m_AgentGroup.RegisterAgent(agent.Agent);
 
             AgentsList.Add(agent);
+            AgentsNames.Add(agent.Agent.name);
         }
 
         for (int i =0; i < mazeBuilder.Goals.Count; i++)
@@ -345,9 +355,10 @@ public class EnvController : MonoBehaviour
     public void Clear()
     {
         AgentsList.Clear();
+        AgentsNames.Clear();
+        //areaRectangularGrid.Clear();
         BlocksList.Clear();
         GoalsList.Clear();
-
     }
     
     private void SubscribeAgentToObstacles(ref MAPFAgent agent)
@@ -367,6 +378,10 @@ public class EnvController : MonoBehaviour
         onConstruction = true;
         envSettings = this.GetComponent<EnvSettings>();
         m_AgentGroup = new SimpleMultiAgentGroup();
+        if (envSettings.useGridMovement)
+        {
+            areaRectangularGrid = this.GetComponent<RectangularGrid>();
+        }
         //mlagents to know the reset func
         Academy.Instance.OnEnvironmentReset += ResetScene;  
     }
@@ -383,15 +398,31 @@ public class EnvController : MonoBehaviour
 
         foreach (var item in AgentsList)
         {
-            if (item.Agent.transform.localPosition.y < area.transform.localPosition.y)
+            if (item.Agent.transform.localPosition.y - 1.1f< area.transform.localPosition.y)
             {
-                //even one agent falls out of borders implies a reset
+                //even one agent falls out of borders causes a reset
                 //even if the goals are completed all agents should stay alive!
+                item.Agent.AddReward(envSettings.invdividualRewards[GameEvent.AgentOutOfBounds]);
                 m_AgentGroup.AddGroupReward(envSettings.invdividualRewards[GameEvent.AgentOutOfBounds]);
                 m_AgentGroup.GroupEpisodeInterrupted();
                 ResetScene();
             }
         }
+
+        var rewardForCooperation = 0f;
+        foreach (var agentName in AgentsNames)
+        {
+            float tmpReward = 0f;
+            if (DistanceThr.TryGetValue(agentName, out float[] goalThr))
+            {
+                foreach (var item in goalThr)
+                {
+                    tmpReward = Mathf.Min(item, tmpReward); 
+                }
+                rewardForCooperation += tmpReward;
+            }
+        }
+        m_AgentGroup.AddGroupReward(Mathf.Clamp(rewardForCooperation, 0f, 0.33f));
     }
 
     private Vector3 GetRandomSpawnPos(Collider collider)
@@ -409,16 +440,24 @@ public class EnvController : MonoBehaviour
 
 
             //random shift 
-            randomSpawnPos = new Vector3(areaPosition.x + randomPosX, areaPosition.y + 1.1f, areaPosition.z + randomPosZ);
-
+            if (this.envSettings.useGridMovement)
+            {
+                randomSpawnPos = areaRectangularGrid.GetCoords(UnityEngine.Random.Range(0, areaRectangularGrid.maxCellIndex));
+            }
+            else
+            {
+                randomSpawnPos = new Vector3(areaPosition.x + randomPosX, 
+                                             collider.transform.localPosition.y + 1.1f, 
+                                             areaPosition.z + randomPosZ);
+            }
 
             var overlapBox = new Vector3(envSettings.SpawnOverlapBox.x,
-                                         0f,
+                                         collider.transform.localPosition.y,
                                          envSettings.SpawnOverlapBox.y);
 
             //check on a collider type.
 
-#if DEBUG
+#if DEBUGGWP
             var tmp = Physics.OverlapBox(randomSpawnPos, overlapBox);
             {
 
@@ -513,7 +552,8 @@ public class EnvController : MonoBehaviour
                     agent.StartingPos = item.transform.localPosition;
                     agent.StartingRot = item.transform.localRotation;
                     AgentsList.Add(agent);
-
+                    
+                    AgentsNames.Add(agent.Agent.name);
                     m_AgentGroup.RegisterAgent(item);
                 }
 
@@ -536,6 +576,7 @@ public class EnvController : MonoBehaviour
                     GoalsList.Add(goal);
                 }
             }
+
         }
         else
         {
@@ -604,15 +645,6 @@ public class EnvController : MonoBehaviour
             }
             Physics.SyncTransforms();
 
-            foreach (var item in GoalsList)
-            {
-                var goalSubSeed = GoalsList.IndexOf(item);
-                var pos = RandomizeGoalPosition ? GetRandomSpawnPos(item.Goal.goalCl) : item.StartingPos;
-                var rot = item.StartingRot;
-                item.Goal.Reset();
-                item.Goal.transform.SetLocalPositionAndRotation(pos, rot);
-                //changing goalType --- for real?
-            }
 
             foreach (var item in AgentsList)
             {
@@ -624,8 +656,49 @@ public class EnvController : MonoBehaviour
                 item.Agent.agentRb.angularVelocity = Vector3.zero;
             }
 
+            Physics.SyncTransforms();
+
+            foreach (var item in GoalsList)
+            {
+                var goalSubSeed = GoalsList.IndexOf(item);
+                var pos = RandomizeGoalPosition ? GetRandomSpawnPos(item.Goal.goalCl) : item.StartingPos;
+                var rot = item.StartingRot;
+                
+                item.Goal.Reset();
+                item.Goal.transform.SetLocalPositionAndRotation(pos, rot);
+                //changing goalType --- for real?
+            }
+            Physics.SyncTransforms();
+
             mazeBuilder.Clear();
         }
+
+        //resetting the table
+        DistanceThr.Clear();
+        foreach (var item in AgentsList)
+        {
+            var arr = new float[GoalsList.Count];
+            for (int i = 0; i < arr.Length; i++)
+            {
+                arr[i] = Mathf.Infinity;
+            }
+            DistanceThr.Add(item.Agent.name, arr);
+        }
+
+    }
+
+    public float[] UpdateThresholds(string agentName)
+    {
+        float[] prevDist = (float[])DistanceThr[agentName].Clone();
+
+        var agentP = AgentsList[AgentsNames.IndexOf(agentName)].Agent.transform.localPosition;
+        for (int i = 0; i < GoalsList.Count; i++) 
+        {
+            var goalP = GoalsList[i].Goal.transform.localPosition;
+            DistanceThr[agentName][i] = Mathf.Min(Vector3.Distance(agentP, goalP), DistanceThr[agentName][i]);
+        }
+
+        return prevDist.Select((x, index) => x - DistanceThr[agentName][index]).ToArray();
     }
 
     public void UpdateStatistics() 
